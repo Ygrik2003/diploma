@@ -61,8 +61,8 @@ def compute_pde(xyt):
 
     continuity = u_x + v_y
 
-    momentum_x = u_t + v_t + u * u_x + v * u_y + p_x - nu * (u_xx + u_yy)
-    momentum_y = u_t + v_t + u * v_x + v * v_y + p_y - nu * (v_xx + v_yy)
+    momentum_x = u_t + u * u_x + v * u_y + p_x - nu * (u_xx + u_yy)
+    momentum_y = v_t + u * v_x + v * v_y + p_y - nu * (v_xx + v_yy)
 
     return continuity, momentum_x, momentum_y
 
