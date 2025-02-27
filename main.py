@@ -25,13 +25,13 @@ class NavierStokesModel(nn.Module):
             activate_func=ActivateFunctions.AdaptiveBlendingUnit, args=dict()
         ).get()
 
-        self.fc1 = nn.Linear(3, 32)
-        self.fc2 = nn.Linear(32, 32)
-        self.fc3 = nn.Linear(32, 32)
-        self.fc4 = nn.Linear(32, 3)
+        self.fc1 = nn.Linear(3, 128)
+        self.fc2 = nn.Linear(128, 128)
+        self.fc3 = nn.Linear(128, 128)
+        self.fc4 = nn.Linear(128, 3)
 
     def forward(self, x):
-        x = self.activation_func(self.fc1(x))
+        x = nn.ReLU(self.fc1(x))
         x = self.activation_func(self.fc2(x))
         x = self.activation_func(self.fc3(x))
         return self.fc4(x)
@@ -103,9 +103,12 @@ def boundary_conditions():
     u, v, p = left_predict[:, 0], left_predict[:, 1], left_predict[:, 2]
     bc_loss = torch.mean((u - (0.5 - (0.5 - left_bc[:, 1] / Ly) ** 2)) ** 2)
 
-    for outflow in [bottom_predict, right_predict, top_predict]:
-        u, v, p = outflow[:, 0], outflow[:, 1], outflow[:, 2]
-        bc_loss += torch.mean(u**2 * v**2)
+    u, v, p = bottom_predict[:, 0], bottom_predict[:, 1], bottom_predict[:, 2]
+    bc_loss += torch.mean(u**2 + v**2)
+    u, v, p = right_predict[:, 0], right_predict[:, 1], right_predict[:, 2]
+    bc_loss += torch.mean(u**2 + v**2)
+    u, v, p = top_predict[:, 0], top_predict[:, 1], top_predict[:, 2]
+    bc_loss += torch.mean(u**2 + v**2)
 
     return bc_loss
 
@@ -200,7 +203,7 @@ for epoch in range(num_epochs):
 print("Training completed.")
 
 
-nx, ny, nt = 50, 50, 10
+nx, ny, nt = 50, 50, 4
 x = np.linspace(0, Lx, nx)
 y = np.linspace(0, Ly, ny)
 t = np.linspace(0, T, nt)
@@ -221,14 +224,15 @@ P = predictions[:, 2].reshape((ny, nx, nt))
 
 
 for t_i in t:
-    t_i = int(t_i)
     fig, axs = plt.subplots(1, 2, figsize=(15, 5))
-    axs[0].quiver(X, Y, U[:, :, t_i], V[:, :, t_i], scale=10, scale_units="xy")
+    axs[0].quiver(
+        X, Y, U[:, :, int(t_i * nt)], V[:, :, int(t_i * nt)], scale=10, scale_units="xy"
+    )
     axs[0].set_title(f"Velocity Vector Field (u, v), t = {t_i}")
     axs[0].set_xlabel("x")
     axs[0].set_ylabel("y")
 
-    c3 = axs[1].contourf(X, Y, P[:, :, t_i], levels=50, cmap="viridis")
+    c3 = axs[1].contourf(X, Y, P[:, :, int(t_i * nt)], levels=50, cmap="viridis")
     axs[1].set_title("Pressure")
     fig.colorbar(c3, ax=axs[1])
     axs[1].set_xlabel("x")
