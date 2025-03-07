@@ -9,7 +9,12 @@ DTYPE = Union[float, nn.Parameter]
 
 
 class ActivateFunctions(Enum):
-    AdaptiveBlendingUnit = 1
+    SinActivation = 1
+    TanhActivation = 2
+    SiLUActivation = 3
+    QuadraticActivation = 4
+    SoftplusActivation = 5
+    AdaptiveBlendingUnit = 6
 
 
 class ActivateFunctionController:
@@ -18,7 +23,17 @@ class ActivateFunctionController:
         self.args = args
 
     def get(self):
-        if self.activate_func == ActivateFunctions.AdaptiveBlendingUnit:
+        if self.activate_func == ActivateFunctions.SinActivation:
+            return SinActivation(*self.args)
+        elif self.activate_func == ActivateFunctions.TanhActivation:
+            return TanhActivation(*self.args)
+        elif self.activate_func == ActivateFunctions.SiLUActivation:
+            return SiLUActivation(*self.args)
+        elif self.activate_func == ActivateFunctions.QuadraticActivation:
+            return QuadraticActivation(*self.args)
+        elif self.activate_func == ActivateFunctions.SoftplusActivation:
+            return SoftplusActivation(*self.args)
+        elif self.activate_func == ActivateFunctions.AdaptiveBlendingUnit:
             return AdaptiveBlendingUnit(*self.args)
         else:
             raise ValueError(
@@ -165,9 +180,8 @@ class AdaptiveBlendingUnit(nn.Module):
             )
 
     def forward(self, x: Tensor) -> Tensor:
-        weights_softmax = self.softmax(self.weights)  # [num_act,]
+        weights_softmax = self.softmax(self.weights)
 
-        # Shape: [*x.shape, num_act] @ [num_act,] = x.shape
         out = torch.matmul(self.acts(x), weights_softmax)
 
         return out
