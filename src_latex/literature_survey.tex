@@ -16,29 +16,29 @@
 \begin{itemize}
     \item \textbf{Превосходное обобщение}: Достигается на 3 порядка более низкийMSE, чем
     tanh по проблемам теплопередачи (таблица II).
-    \item \textbf{Устойчивость к шуму}: Reduces parameter estimation error by 68\% under $\sigma=5$ noise in inverse problems (Table V).
-    \item \textbf{Smooth Gradients}: Controlled saturation regions mitigate vanishing gradients.
+    \item \textbf{Устойчивость к шуму}: Снижает ошибку оценки параметров на 68\% при $\sigma=5$ шум в обратных задачах (таблица V).
+    \item \textbf{Плавные градиенты}: Контролируемые области насыщенности смягчают исчезновение градиенты.
 \end{itemize}
 
-\textbf{ABU-PINN} \cite{abu_pinn} adaptively blends activation functions (e.g., $\sin$, $\tanh$, GELU) via learned coefficients:
+\textbf{ABU-PINN} \cite{abu_pinn} адаптивно сочетает функции активации (например, $\sin$, $\tanh$, GELU) via learned coefficients:
 \[
 f(x) = \sum_{i=1}^N G(\alpha_i) \sigma_i(\beta_i x)
 \]
-where $G$ is a softmax gate. This method:
+где $G$ является вентилем softmax. Этот метод:
 \begin{itemize}
-    \item Outperforms fixed activations on 1D Poisson's equation (0.88\% $L_2$ error vs. 34.27\% for $\tanh$; Table 2).
-    \item Captures system-specific features (e.g., periodicity in convection equations).
-    \item Reduces manual tuning through automated blending.
+    \item Превосходит фиксированные активации по одномерному уравнению Пуассона (0.88\% $L_2$ ошибка против 34.27\% для $\tanh$).
+    \item Учитывает особенности системы (например, периодичность в уравнениях конвекции).
+    \item Сокращает ручную настройку за счет автоматического смешивания
 \end{itemize}
 
-\subsection*{2. Handling Hydrodynamic PDEs}
-PINNs demonstrate versatility across key hydrodynamic systems:
+\subsection{Работа с гидродинамическими PDE}
+PINN демонстрируют универсальность для ключевых гидродинамических систем:
 
 \begin{table}[h]
 \centering
-\caption{Performance Comparison Across PDE Systems}
+\caption{- Сравнение производительности систем PDE}
 \begin{tabular}{l|c|c|c}
-\textbf{Equation} & \textbf{Metric} & \textbf{REAct} & \textbf{ABU-PINN} \\
+\textbf{Уравнение} & \textbf{Показатель} & \textbf{REAct} & \textbf{ABU-PINN} \\
 \hline
 1D Heat & MSE & $2.09 \times 10^{-7}$ & - \\
 Burgers' ($\nu=0.004/\pi$) & $L_2$ rel. error & 0.1496 & 50\% lower than fixed \\
@@ -47,14 +47,14 @@ Navier-Stokes & Velocity MAE & $7.29 \times 10^{-7}$ & Improved pressure predict
 \end{tabular}
 \end{table}
 
-\subsection*{3. Optimization Strategies}
+\subsection{Стратегии оптимизации}
 \begin{itemize}
-    \item \textbf{Adaptive Loss Weighting}: REAct uses physics-guided weights $\lambda_p, \lambda_{IC}, \lambda_{BC}$ to balance PDE residuals and boundary conditions.
-    \item \textbf{Curriculum Learning}: ABU-PINN avoids manual scheduling in convection-dominated flows ($\beta=64$) via sinusoidal components.
-    \item \textbf{Pre-activation Normalization}: Adaptive scaling in ABU-PINN stabilizes layer statistics, reducing covariate shift (Fig. 2B).
+    \item \textbf{Адаптивное взвешивание потерь}:  REAct использует веса, ориентированные на физику $\lambda_p, \lambda_{IC}, \lambda_{BC}$ чтобы сбалансировать остатки PDE и граничные условия.
+    \item \textbf{Curriculum Learning}: ABU-PINN избегает ручного планирования в потоках с преобладанием конвекции ($\beta=64$) через синусоидальные компоненты.
+    \item \textbf{Нормализация перед активацией}: Стабилизируется адаптивное масштабирование в ABU-PINN статистика слоя, уменьшающая ковариационный сдвиг.
 \end{itemize}
 
-\subsection*{4. Applications in Hydrodynamics}
+\subsection{Приложения в гидродинамике}
 \begin{itemize}
     \item \textbf{Free-Surface Flow}: Conservative PINN formulation for SWEs achieves $8.9 \times 10^{-3}$ relative error with bathymetry variations \cite{shallow_water}.
     \item \textbf{Turbulent Flow}: REAct improves underdamped vibration predictions (MAE: $7.29 \times 10^{-7}$ vs. $7.92 \times 10^{-7}$ for STan).
@@ -68,7 +68,7 @@ Navier-Stokes & Velocity MAE & $7.29 \times 10^{-7}$ & Improved pressure predict
     \item \textbf{Computational Cost}: ABU-PINN requires 2.0M parameters vs. REAct's 4 parameters per neuron.
 \end{itemize}
 
-\subsection*{Conclusion}
+\subsection{Заключение}
 Adaptive activation functions (REAct, ABU-PINN) significantly enhance PINNs' capacity for hydrodynamic modeling. Future directions should integrate these advances with:
 \begin{itemize}
     \item Domain decomposition for shock handling
