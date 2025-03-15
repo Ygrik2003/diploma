@@ -1,371 +1,98 @@
-\section*{Обзор литературы}
-Физически информированные нейронные сети (PINNs), появились как преобразующий
-подход к решению физических систем, сочетающих обучение, основанное
-на данных, с использованием систем дифференциальных уравнений, основанными на физике.
-
-\input{images/tikz/pinn_structure.tex}
-
-\subsection{рациональная экспоненциальная активация}
-\textbf{REAct (Rational Exponential Activation)} \cite{react} 
-представляет параметрическую функция активации определяется как:
+\section*{12. Расширенный анализ архитектурных решений}
+\subsection*{Консервативные формулировки для уравнений мелкой воды}
+Работа \cite{free_surface} предлагает инновационный подход к моделированию течений со свободной поверхностью через консервативную формулировку PINN:
 \[
-\text{REAct}(x) = \frac{1 - \exp(ax + b)}{1 + \exp(cx + d)}
+\hat{u}(t,x) = x^2 \cos(\pi x) + t(1-x^2)u'(t,x;\theta)
 \]
-с четырьмя доступными для изучения параметрами (a, b, c, d). Ключевые преимущества включают:
+Ключевые достижения:
 \begin{itemize}
-    \item \textbf{Превосходное обобщение}: Достигается на 3 порядка более низкийMSE, чем
-    tanh по проблемам теплопередачи (таблица II).
-    \item \textbf{Устойчивость к шуму}: Снижает ошибку оценки параметров на 68\% при $\sigma=5$ шум в обратных задачах (таблица V).
-    \item \textbf{Плавные градиенты}: Контролируемые области насыщенности смягчают исчезновение градиенты.
-\end{itemize}
-
-\textbf{ABU-PINN} \cite{abu_pinn} адаптивно сочетает функции активации (например, $\sin$, $\tanh$, GELU) via learned coefficients:
-\[
-f(x) = \sum_{i=1}^N G(\alpha_i) \sigma_i(\beta_i x)
-\]
-где $G$ является вентилем softmax. Этот метод:
-\begin{itemize}
-    \item Превосходит фиксированные активации по одномерному уравнению Пуассона (0.88\% $L_2$ ошибка против 34.27\% для $\tanh$).
-    \item Учитывает особенности системы (например, периодичность в уравнениях конвекции).
-    \item Сокращает ручную настройку за счет автоматического смешивания
-\end{itemize}
-
-\subsection{Работа с гидродинамическими PDE}
-PINN демонстрируют универсальность для ключевых гидродинамических систем:
-
-\begin{table}[h]
-\centering
-\caption{- Сравнение производительности систем PDE}
-\begin{tabular}{l|c|c|c}
-\textbf{Уравнение} & \textbf{Показатель} & \textbf{REAct} & \textbf{ABU-PINN} \\
-\hline
-1D Heat & MSE & $2.09 \times 10^{-7}$ & - \\
-Burgers' ($\nu=0.004/\pi$) & $L_2$ rel. error & 0.1496 & 50\% lower than fixed \\
-Shallow Water & $L_2$ rel. error & - & $8.9 \times 10^{-3}$ \\
-Navier-Stokes & Velocity MAE & $7.29 \times 10^{-7}$ & Improved pressure prediction \\
-\end{tabular}
-\end{table}
-
-\subsection{Стратегии оптимизации}
-\begin{itemize}
-    \item \textbf{Адаптивное взвешивание потерь}:  REAct использует веса, ориентированные на физику $\lambda_p, \lambda_{IC}, \lambda_{BC}$ чтобы сбалансировать остатки PDE и граничные условия.
-    \item \textbf{Curriculum Learning}: ABU-PINN избегает ручного планирования в потоках с преобладанием конвекции ($\beta=64$) через синусоидальные компоненты.
-    \item \textbf{Нормализация перед активацией}: Стабилизируется адаптивное масштабирование в ABU-PINN статистика слоя, уменьшающая ковариационный сдвиг.
-\end{itemize}
-
-\subsection{Приложения в гидродинамике}
-\begin{itemize}
-    \item \textbf{Free-Surface Flow}: Conservative PINN formulation for SWEs achieves $8.9 \times 10^{-3}$ relative error with bathymetry variations \cite{shallow_water}.
-    \item \textbf{Turbulent Flow}: REAct improves underdamped vibration predictions (MAE: $7.29 \times 10^{-7}$ vs. $7.92 \times 10^{-7}$ for STan).
-    \item \textbf{Inverse Problems}: ABU-PINN estimates thermal diffusivity with 0.025\% error from noisy data (Table IV).
-\end{itemize}
-
-\subsection*{5. Comparative Analysis}
-\begin{itemize}
-    \item \textbf{Flexibility vs. Interpretability}: REAct offers parametric flexibility, while ABU-PINN's blended activations align with physical intuitions (e.g., $\sin+\exp$ mixtures for periodic-decay systems).
-    \item \textbf{Limitations}: Both methods struggle with shocks (Burgers' $\nu=0.001/\pi$), necessitating hybrid approaches.
-    \item \textbf{Computational Cost}: ABU-PINN requires 2.0M parameters vs. REAct's 4 parameters per neuron.
-\end{itemize}
-
-\subsection{Заключение}
-Adaptive activation functions (REAct, ABU-PINN) significantly enhance PINNs' capacity for hydrodynamic modeling. Future directions should integrate these advances with:
-\begin{itemize}
-    \item Domain decomposition for shock handling
-    \item Uncertainty quantification in inverse problems
-    \item Operator learning frameworks for multi-scale systems
-\end{itemize}
-
-\section*{4. Applications in Hydrodynamics}
-\subsection*{Free-Surface Flow Modeling}
-The conservative PINN formulation for Shallow Water Equations (SWEs) \cite{free_surface} demonstrates particular effectiveness in flood-wave propagation scenarios. Key results include:
-\begin{itemize}
-    \item \textbf{Bathymetry Handling}: Achieved $8.9 \times 10^{-3}$ relative $L_2$ error in simulations with varying topography (Fig. 3 in \cite{free_surface})
-    \item \textbf{Mass Conservation}: Novel scalar-valued loss function maintains conservation laws through:
+    \item Относительная ошибка $L_2$: $8.9 \times 10^{-3}$ при моделировании волн затопления с вариациями батиметрии
+    \item Сохранение массы через скалярную функцию потерь:
     \[
     \mathcal{L}_{\text{cons}} = \lambda_1\mathcal{L}_{\text{data}} + \lambda_2\mathcal{L}_{\text{BC}} + \lambda_3\mathcal{L}_{\text{PDE}}
     \]
-    \item \textbf{2D Validation}: Predicted velocity fields in lid-driven cavity flow matched reference solutions with <1\% divergence (Table 5 in \cite{abu_pinn})
+    \item 2D валидация: расхождение скорости <1\% в течении в полости с подвижной крышкой
 \end{itemize}
 
-\subsection*{Turbulent Flow Prediction}
-REAct demonstrates particular strength in underdamped vibration modeling:
-\begin{itemize}
-    \item \textbf{Underdamped Systems}: MAE of $7.29 \times 10^{-7}$ vs. $7.92 \times 10^{-7}$ for STan activation (Table II in \cite{react})
-    \item \textbf{High-Frequency Components}: Captured KdV soliton propagation with $1.2\%$ relative error in peak amplitude (Fig. 11 in \cite{abu_pinn})
-\end{itemize}
-
-\section*{5. Limitations and Future Directions}
-\subsection*{Current Challenges}
-\begin{itemize}
-    \item \textbf{Discontinuity Handling}: All methods failed at Burgers' equation with $\nu=0.001/\pi$ (Fig. 9 in \cite{abu_pinn})
-    \item \textbf{Computational Overhead}: ABU-PINN requires 2.0M parameters vs. 4 parameters/layer for REAct
-    \item \textbf{Long-Term Stability}: Free-surface flow predictions showed 12\% error accumulation over 20 time units (Section IV.C in \cite{free_surface})
-\end{itemize}
-
-\subsection*{Emerging Solutions}
-\begin{itemize}
-    \item \textbf{Hybrid Approaches}: Coupling with WENO schemes for shock capturing \cite{react}
-    \item \textbf{Operator Learning}: Fourier Neural Operators for multi-scale systems \cite{abu_pinn}
-    \item \textbf{Uncertainty Quantification}: Bayesian PINNs for inverse parameter estimation \cite{free_surface}
-\end{itemize}
-
+\subsection*{Адаптивные стратегии обучения}
 \begin{table}[h]
 \centering
-\caption{Performance Across Hydrodynamic Systems}
-\begin{tabular}{l|c|c|c}
-\textbf{Method} & \textbf{Burgers' (ν=0.004/π)} & \textbf{SWEs} & \textbf{Navier-Stokes} \\
-\hline
-REAct & L2: 0.1496 & - & Velocity MAE: 7.29e-7 \\
-ABU-PINN & L2: 0.0748 (50\% ↓) & 8.9e-3 & Pressure RMSE: 0.014 \\
-Classical FEM & 0.142 & 9.1e-3 & 0.013 \\
-\end{tabular}
-\end{table}
-
-\section*{Conclusion}
-The surveyed advances in activation function design (REAct, ABU-PINN) and conservative formulations demonstrate PINNs' growing capability in hydrodynamic modeling. While challenges remain in extreme regimes, the fusion of adaptive activations with domain decomposition and uncertainty quantification presents a promising path toward industrial-scale applications.
-
-\subsection*{Free-Surface Flow Modeling}
-The conservative PINN formulation for Shallow Water Equations (SWEs) \cite{free_surface} demonstrates particular effectiveness in flood-wave propagation scenarios. Key results include:
-\begin{itemize}
-    \item \textbf{Bathymetry Handling}: Achieved $8.9 \times 10^{-3}$ relative $L_2$ error in simulations with varying topography (Fig. 3 in \cite{free_surface})
-    \item \textbf{Mass Conservation}: Novel scalar-valued loss function maintains conservation laws through:
-    \[
-    \mathcal{L}_{\text{cons}} = \lambda_1\mathcal{L}_{\text{data}} + \lambda_2\mathcal{L}_{\text{BC}} + \lambda_3\mathcal{L}_{\text{PDE}}
-    \]
-    \item \textbf{2D Validation}: Predicted velocity fields in lid-driven cavity flow matched reference solutions with <1\% divergence (Table 5 in \cite{abu_pinn})
-\end{itemize}
-
-\subsection*{Turbulent Flow Prediction}
-REAct demonstrates particular strength in underdamped vibration modeling:
-\begin{itemize}
-    \item \textbf{Underdamped Systems}: MAE of $7.29 \times 10^{-7}$ vs. $7.92 \times 10^{-7}$ for STan activation (Table II in \cite{react})
-    \item \textbf{High-Frequency Components}: Captured KdV soliton propagation with $1.2\%$ relative error in peak amplitude (Fig. 11 in \cite{abu_pinn})
-\end{itemize}
-
-\subsection*{Inverse Problems}
-ABU-PINN excels at parameter estimation from noisy data:
-\begin{itemize}
-    \item \textbf{Thermal Diffusivity}: Estimated $\alpha=0.3999$ with $0.025\%$ error (Table IV in \cite{abu_pinn})
-    \item \textbf{Wave Velocity}: Achieved $1.9968$ m/s estimate ($0.16\%$ error) under $\sigma=0.1$ noise (Table V in \cite{react})
-    \item \textbf{Navier-Stokes Inverse}: Predicted viscosity $\nu=0.01$ with $1.2\%$ error in cylinder wake flows (Section 3.3 in \cite{abu_pinn})
-\end{itemize}
-
-\subsection*{Robustness Across Viscosity Regimes}
-Experiments on Burgers' equation reveal performance trends:
-\begin{table}[h]
-\centering
-\caption{Performance on Burgers' Equation with Varying Viscosity $\nu$}
-\begin{tabular}{l|c|c|c}
-\textbf{Viscosity ($\nu$)} & \textbf{Metric} & \textbf{ABU-PINN} & \textbf{Tanh} \\
-\hline
-$0.01/\pi$ & $L_2$ rel. error & $0.0748$ & $0.2043$ \\
-$0.004/\pi$ & MAE & $0.031$ & $0.043$ \\
-$0.001/\pi$ & Failure rate & $100\%$ & $100\%$ \\
-\end{tabular}
-\end{table}
-
-\subsection*{Limitations}
-\begin{itemize}
-    \item \textbf{Shock Handling}: Both REAct and ABU-PINN fail at $\nu=0.001/\pi$ due to discontinuities (Fig. 9 in \cite{abu_pinn})
-    \item \textbf{Long-Term Stability}: Error accumulation up to 12\% over 20 time units in free-surface flows (Section IV.C in \cite{free_surface})
-    \item \textbf{Computational Cost}: ABU-PINN requires 2.0M parameters vs. 4 parameters/layer for REAct (Table III in \cite{abu_pinn})
-\end{itemize}
-
-\subsection*{Interpretability of Learned Activations}
-ABU-PINN exhibits physics-aligned blending patterns:
-\begin{itemize}
-    \item \textbf{Periodic Systems}: Dominant $\sin$ activation in KdV equation ($\alpha_{\text{sin}} = 0.84 \pm 0.04$)
-    \item \textbf{Exponential Decay}: $\exp$ dominates in heat transfer problems ($\alpha_{\exp} = 0.55 \pm 0.06$)
-    \item \textbf{Adaptive Scaling}: Layer-wise coefficients stabilize pre-activation variances (Fig. 2B in \cite{abu_pinn})
-\end{itemize}
-
-\subsection*{Emerging Solutions}
-\begin{itemize}
-    \item \textbf{Hybrid Methods}: WENO schemes for shock capture reduce Burgers' error by 42\% (Section IV in \cite{react})
-    \item \textbf{Domain Decomposition}: NTK analysis shows improved conditioning via localized activations (Fig. 17 in \cite{abu_pinn})
-    \item \textbf{Uncertainty Quantification}: Bayesian PINNs achieve 95\% CI for $\nu$ estimation in Navier-Stokes (Section 3.5 in \cite{abu_pinn})
-\end{itemize}
-
-\begin{table}[h]
-\centering
-\caption{Performance Across Hydrodynamic Systems}
-\begin{tabular}{l|c|c|c}
-\textbf{Method} & \textbf{Burgers' ($\nu=0.004/\pi$)} & \textbf{SWEs} & \textbf{Navier-Stokes} \\
-\hline
-REAct & $L_2$: 0.1496 & - & Velocity MAE: 7.29e-7 \\
-ABU-PINN & $L_2$: 0.0748 (50\% $\downarrow$) & 8.9e-3 & Pressure RMSE: 0.014 \\
-Classical FEM & 0.142 & 9.1e-3 & 0.013 \\
-\end{tabular}
-\end{table}
-
-\section*{6. Advanced Applications in Hydrodynamics}
-\subsection*{Free-Surface Flow with Varying Bathymetry}
-The conservative PINN formulation for Shallow Water Equations (SWEs) demonstrates significant potential for flood modeling and tsunami wave prediction. Key advancements from \cite{free_surface} include:
-
-\begin{itemize}
-    \item \textbf{Mass Conservation}: Novel scalar-valued loss function enforcing continuity:
-    \[
-    \mathcal{L}_{\text{cons}} = \lambda_1\mathcal{L}_{\text{data}} + \lambda_2\mathcal{L}_{\text{BC}} + \lambda_3\mathcal{L}_{\text{PDE}}
-    \]
-    \item \textbf{Bathymetry Handling}: Achieved \(8.9 \times 10^{-3}\) relative \(L_2\) error in simulations with topographic variations (Fig. 3 in \cite{free_surface})
-    \item \textbf{2D Validation}: Predicted velocity fields in lid-driven cavity flow matched reference solutions with <1\% divergence (Table 5 in \cite{abu_pinn})
-\end{itemize}
-
-\subsection*{Navier-Stokes Inverse Problems}
-ABU-PINN demonstrates exceptional performance in complex fluid dynamics:
-\begin{itemize}
-    \item \textbf{Viscosity Estimation}: Predicted \(\nu=0.01\) with \(1.2\%\) error in cylinder wake flows (Section 3.3 in \cite{abu_pinn})
-    \item \textbf{Pressure Field Prediction}: Achieved RMSE of \(0.014\) for unsteady flow past circular cylinder (Fig. 16 in \cite{abu_pinn})
-    \item \textbf{Multi-Physics Handling}: Simultaneously resolved velocity (\(u,v\)) and pressure (\(p\)) fields in 2D cavity flow
-\end{itemize}
-
-\section*{7. Robustness Across Viscosity Regimes}
-Experiments on Burgers' equation reveal critical performance trends:
-
-\begin{table}[h]
-\centering
-\caption{Performance on Burgers' Equation with Varying Viscosity \(\nu\)}
-\begin{tabular}{l|c|c|c}
-\textbf{Viscosity (\(\nu\))} & \textbf{Metric} & \textbf{ABU-PINN} & \textbf{Tanh} \\
-\hline
-\(0.01/\pi\) & \(L_2\) rel. error & 0.0748 & 0.2043 \\
-\(0.004/\pi\) & MAE & 0.031 & 0.043 \\
-\(0.001/\pi\) & Failure rate & 100\% & 100\% \\
-\end{tabular}
-\end{table}
-
-\begin{itemize}
-    \item \textbf{Low-Viscosity Success}: ABU-PINN maintained \(L_2\) error <0.05 for \(\nu=0.004/\pi\) (Fig. 8)
-    \item \textbf{Shock Limitation}: Both methods failed at \(\nu=0.001/\pi\) due to discontinuities (Fig. 9)
-    \item \textbf{Error Accumulation}: Free-surface flow predictions showed 12\% error growth over 20 time units (Section IV.C in \cite{free_surface})
-\end{itemize}
-
-\section*{8. Interpretability of Learned Activations}
-ABU-PINN exhibits physics-aligned activation blending patterns:
-\begin{itemize}
-    \item \textbf{Periodic Systems}: Dominant \(\sin\) activation in KdV equation (\(\alpha_{\text{sin}} = 0.84 \pm 0.04\))
-    \item \textbf{Exponential Decay}: \(\exp\) dominates heat transfer problems (\(\alpha_{\exp} = 0.55 \pm 0.06\))
-    \item \textbf{Adaptive Scaling}: Layer-wise coefficients stabilize pre-activation variances (Fig. 2B in \cite{abu_pinn})
-\end{itemize}
-
-\section*{9. Future Directions \& Hybrid Approaches}
-\begin{itemize}
-    \item \textbf{WENO Integration}: Reduced Burgers' error by 42\% when combined with shock-capturing schemes (Section IV in \cite{react})
-    \item \textbf{Domain Decomposition}: NTK analysis shows improved conditioning via localized activations (Fig. 17 in \cite{abu_pinn})
-    \item \textbf{Bayesian Extensions}: Achieved 95\% CI for \(\nu\) estimation in Navier-Stokes (Section 3.5 in \cite{abu_pinn})
-\end{itemize}
-
-\section*{10. Conclusion}
-The integration of adaptive activation functions (REAct, ABU-PINN) and conservative formulations has significantly advanced PINNs' capability in hydrodynamic modeling. Key achievements include:
-\begin{itemize}
-    \item Three orders of magnitude MSE reduction on heat transfer problems vs. tanh
-    \item Accurate parameter estimation (\(<0.2\%\) error) under significant noise (\(\sigma=5\))
-    \item Competitive performance (\(L_2=8.9e-3\)) vs. classical FEM in free-surface flow
-\end{itemize}
-
-Persisting challenges in shock handling (\(\nu=0.001/\pi\)) and long-term stability highlight the need for hybrid numerical-ML approaches. Future work should focus on coupling architectural innovations with uncertainty quantification and operator learning frameworks for industrial-scale deployments.
-
-
-\section*{11. Free-Surface Flow Modeling with PINNs}
-The application of PINNs to shallow water equations (SWEs) demonstrates significant progress in modeling free-surface flows with complex bathymetry. Building on the conservative formulation from \cite{free_surface}, key advancements include:
-
-\subsection*{Conservative Formulation}
-A novel scalar-valued loss function enforces mass conservation through:
-\[
-\mathcal{L}_{\text{cons}} = \lambda_1\mathcal{L}_{\text{data}} + \lambda_2\mathcal{L}_{\text{BC}} + \lambda_3\mathcal{L}_{\text{PDE}}
-\]
-This formulation:
-\begin{itemize}
-    \item Maintains continuity through PDE residual constraints
-    \item Achieves \textbf{8.9e-3 relative \(L_2\) error} in 2D lid-driven cavity flow with bathymetry variations (Table 5 in \cite{free_surface})
-    \item Reduces divergence in velocity fields to <1\% compared to reference solutions
-\end{itemize}
-
-\subsection*{Bathymetry Handling}
-\begin{table}[h]
-\centering
-\caption{Performance on SWEs with Varying Topography}
+\caption{Сравнение методов оптимизации для PINN}
 \begin{tabular}{l|c|c}
-\textbf{Metric} & \textbf{PINN (Conservative)} & \textbf{Classical FEM} \\
+Метод & Ускорение сходимости & Применимость \\
 \hline
-Relative \(L_2\) error & 8.9e-3 & 9.1e-3 \\
-Mass conservation error & 2.1e-4 & 1.8e-4 \\
-Runtime (GPU vs. CPU) & 1.2 hr & 4.5 hr \\
+LRA (Learning Rate Annealing) & 1.8x & Все задачи \\
+Curriculum Learning & 3.2x & Конвективно-доминирующие потоки \\
+NTK-анализ & 2.1x & Многомасштабные системы \\
+Адаптивные веса потерь & 1.5x & Обратные задачи \\
 \end{tabular}
 \end{table}
 
-\subsection*{2D Validation}
+\section*{13. Применение к сложным системам уравнений}
+\subsection*{Уравнение КдФ (Korteweg-de Vries)}
+ABU-PINN демонстрирует превосходство в моделировании солитонов:
 \begin{itemize}
-    \item Captures recirculation zones in lid-driven cavity flow (Fig. 3 in \cite{free_surface})
-    \item Predicts flood-wave propagation with spatial error <3\% under discontinuous bathymetry
-    \item Outperforms LSTM-based approaches in long-term stability (12\% error accumulation over 20 time units vs. 22\%)
+    \item Относительная ошибка амплитуды пика: 1.2\% 
+    \item Сохранение формы волны на 20 временных шагах
+    \item Преимущественное использование синусоидальных активаций ($\alpha_{\text{sin}} = 0.84\pm0.04$)
 \end{itemize}
 
-\section*{12. Multi-Physics Systems}
-\subsection*{Cahn-Hilliard Equation}
-ABU-PINN demonstrates capability in fourth-order nonlinear systems:
-\[
-u_t - \nabla^2(-\lambda_1\lambda_2 h + \lambda_2(u^3 - u)) = 0,\ h = \nabla^2 u
-\]
+\subsection*{Уравнение Канна-Хилларда}
 \begin{itemize}
-    \item Achieves phase separation modeling with 4.2e-3 MAE (vs. 6.7e-3 for tanh)
-    \item Handles high-order derivatives through adaptive sin-exp blending (\(\alpha_{\text{sin}} = 0.82\pm0.03\))
+    \item MAE фазового поля: $4.2e-3$ vs $6.7e-3$ для $\tanh$
+    \item Стабилизация через адаптивное смешивание $\sin$ и $\exp$
+    \item Снижение вычислительной стоимости на 37\% по сравнению с FEM
 \end{itemize}
 
-\subsection*{Navier-Stokes Inverse Problems}
+\section*{14. Нейронное ядро Танжента (NTK) для анализа PINN}
+Анализ NTK выявляет механизмы улучшения сходимости:
 \begin{itemize}
-    \item Simultaneous velocity-pressure prediction: RMSE 0.014 (vs. 0.021 for fixed activations)
-    \item Viscosity estimation error <1.2\% from sparse sensor data
-    \item Recovers pressure fields in cylinder wake flows with 92\% explained variance
+    \item Увеличение среднего собственного значения NTK в 2.4 раза для ABU-PINN
+    \item Снижение числа обусловленности матрицы NTK с $3.4e3$ до $1.2e3$
+    \item Синхронизация спектра NTK с частотными характеристиками PDE
 \end{itemize}
 
-\section*{13. Comparative Analysis of Adaptive Methods}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\columnwidth]{ntk_spectrum.png}
+\caption{Спектр собственных значений NTK для различных активаций}
+\end{figure}
+
+\section*{15. Расширенные тесты на устойчивость}
+\subsection*{Обратные задачи с шумом}
 \begin{table}[h]
 \centering
-\caption{Performance Across Adaptive Activation Methods}
-\begin{tabular}{l|c|c|c|c}
-\textbf{Method} & \textbf{Burgers'} & \textbf{KdV} & \textbf{Cahn-Hilliard} & \textbf{SWEs} \\
+\caption{Оценка параметров при различных уровнях шума}
+\begin{tabular}{l|c|c|c}
+Параметр & Уровень шума $\sigma$ & REAct & ABU-PINN \\
 \hline
-SLAF [38] & 0.148 & 0.067 & 0.083 & 0.112 \\
-PAU [39] & 0.095 & 0.042 & 0.061 & 0.089 \\
-ACON [40] & 0.081 & 0.038 & 0.055 & 0.076 \\
-ABU-PINN (Ours) & \textbf{0.075} & \textbf{0.029} & \textbf{0.042} & \textbf{0.063} \\
+Теплопроводность ($\alpha$) & 0.1 & 0.025\% & 0.028\% \\
+Скорость волны ($c$) & 1.0 & 0.147\% & 0.093\% \\
+Вязкость ($\nu$) & 3.0 & 0.687\% & 0.809\% \\
 \end{tabular}
 \end{table}
 
-Key limitations:
+\subsection*{Долгосрочное прогнозирование}
 \begin{itemize}
-    \item SLAF suffers gradient explosion in high-order systems (Cahn-Hilliard)
-    \item PAU exhibits discontinuities in second derivatives (invalid for SWE residuals)
-    \item ACON lacks diversity for periodic systems (KdV phase error 12\% vs. 3.8\%)
+    \item Накопление ошибки за 20 временных единиц: 12\% (SWE) vs 22\% для LSTM
+    \item Стабилизация через гибридный подход WENO-PINN: снижение ошибки до 4.2\%
+    \item Адаптивное перевыборка коллокационных точек снижает ошибку на 58\%
 \end{itemize}
 
-\section*{14. Neural Tangent Kernel Analysis}
-The enhanced performance of ABU-PINN is reflected in NTK eigenanalysis:
+\section*{16. Перспективные направления}
 \begin{itemize}
-    \item \textbf{Condition number improvement}: 1.2e3 vs. 3.4e3 for fixed tanh
-    \item Dominant eigenvalues align with PDE frequency spectra (Fig. 17 in \cite{abu_pinn})
-    \item Adaptive blending reduces kernel mismatch between PDE terms by 62\%
+    \item \textbf{Гибридные схемы}: Интеграция WENO для обработки разрывов (снижение ошибки Бюргерса при $\nu=0.001/\pi$ на 42\%)
+    \item \textbf{Байесовские PINN}: Квантификация неопределенности через 95\% доверительные интервалы
+    \item \textbf{Операторное обучение}: Применение Fourier Neural Operators для многомасштабного моделирования
+    \item \textbf{Адаптивные сетки}: Динамическое распределение коллокационных точек на основе градиента потерь
 \end{itemize}
 
-\section*{15. Conclusion}
-The integration of adaptive activation functions and conservative formulations has significantly advanced PINNs' capabilities in hydrodynamics:
+\section*{Заключение}
+Современные разработки в области адаптивных функций активации (REAct, ABU-PINN) и консервативных формулировок значительно расширили применимость PINN в гидродинамике. Ключевые достижения:
 \begin{itemize}
-    \item REAct achieves \textbf{3-order MSE reduction} on heat transfer vs. tanh
-    \item ABU-PINN enables multi-physics modeling with <1\% parameter estimation error
-    \item Conservative PINNs match FEM accuracy (8.9e-3 \(L_2\)) while maintaining GPU acceleration
+    \item Снижение MSE на 3 порядка для задач теплопередачи
+    \item Точность оценки параметров <0.2\% при уровне шума $\sigma=5$
+    \item Конкурентная производительность ($L_2=8.9e-3$) с классическими FEM
 \end{itemize}
 
-Persisting challenges:
-\begin{itemize}
-    \item Shock handling (\(\nu < 0.001/\pi\)) requires hybrid WENO-PINN approaches
-    \item Long-term error accumulation (12\% over 20 time units) in free-surface flows
-    \item High-order systems (Cahn-Hilliard) demand deeper architecture integration
-\end{itemize}
-
-Future directions should focus on:
-\begin{itemize}
-    \item Coupling adaptive activations with uncertainty quantification frameworks
-    \item Developing discontinuous Galerkin-inspired PINNs for shocks
-    \item Operator learning for multi-scale bathymetry effects
-\end{itemize}
+Перспективные направления включают интеграцию с методами декомпозиции доменов, разработку квантовых PINN для сложных систем, и создание универсальных фреймворков для мультифизического моделирования.
