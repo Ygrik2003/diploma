@@ -1,0 +1,94 @@
+@misc{d6d98d35ebcc5cdc95330ce821728ac3d23d8292,
+  author   = {O. Sallam and Mirjam Furth},
+  title    = {Inference of water waves surface elevation from horizontal velocity components using physics informed neural networks (PINN)},
+  journal  = {Unknown Journal},
+  year     = {2024},
+  abstract = {In this paper, a mathematical model is presented to infer the wave free surface elevation from the horizontal velocity components using Physics Informed Neural Network (PINN). PINN is a deep learning framework to solve forward and inverse Ordinary/Partial Differential Equations (ODEs/PDEs). The model is verified by measuring a numerically generated Kelvin waves downstream of a KRISO Container Ship (KCS). The KCS Kelvin waves are generated using two phase Volume of Fluid (VoF) Computational Fluid Dynamics (CFD) simulation with OpenFOAM. In addition, the paper presented the use of the Fourier Features decomposition of the Neural Network inputs to avoid the spectral bias phenomena; Spectral bias is the tendency of Neural Network to converge towards the low frequency solution faster than the high frequency one. Fourier Features decomposition layer showed an improvement for the model learning, as the model was able to learn the high and low frequency components simultaneously.}
+}
+
+@misc{7fcd4b3c875d8e41eb0c184aa1a42bf4c8906d61,
+  author   = {Raphael Leiteritz and Marcel Hurler and D. Pflüger},
+  title    = {Learning Free-Surface Flow with Physics-Informed Neural Networks},
+  journal  = {2021 20th IEEE International Conference on Machine Learning and Applications (ICMLA)},
+  year     = {2021},
+  doi      = {10.1109/ICMLA52953.2021.00266},
+  pages    = {1668-1673},
+  abstract = {The interface between data-driven learning methods and classical simulation poses an interesting field offering a multitude of new applications. In this work, we build on the notion of physics-informed neural networks (PINNs) and employ them in the area of shallow-water equation (SWE) models. These models play an important role in modeling and simulating free-surface flow scenarios such as in flood-wave propagation or tsunami waves. Different formulations of the PINN residual are compared to each other and multiple optimizations are being evaluated to speed up the convergence rate. We test these with different 1-D and 2-D experiments and finally demonstrate that regarding a SWE scenario with varying bathymetry, the method is able to produce competitive results in comparison to the direct numerical simulation with a total relative L2 error of 8.9e−3.}
+}
+
+@misc{0fc26db616856a9dea2be1597b21842d80c45f54,
+  author   = {Rui Gao and R. Jaiman},
+  title    = {H-SIREN: Improving implicit neural representations with hyperbolic periodic functions},
+  journal  = {ArXiv},
+  year     = {2024},
+  doi      = {10.48550/arXiv.2410.04716},
+  volume   = {abs/2410.04716},
+  abstract = {Implicit neural representations (INR) have been recently adopted in various applications ranging from computer vision tasks to physics simulations by solving partial differential equations. Among existing INR-based works, multi-layer perceptrons with sinusoidal activation functions find widespread applications and are also frequently treated as a baseline for the development of better activation functions for INR applications. Recent investigations claim that the use of sinusoidal activation functions could be sub-optimal due to their limited supported frequency set as well as their tendency to generate over-smoothed solutions. We provide a simple solution to mitigate such an issue by changing the activation function at the first layer from \$\\sin(x)\$ to \$\\sin(\\sinh(2x))\$. We demonstrate H-SIREN in various computer vision and fluid flow problems, where it surpasses the performance of several state-of-the-art INRs.}
+}
+
+@misc{0d752c79fb816703274a3d37f85a85689a2a9405,
+  author   = {Sourav Mishra and Shreya Hallikeri and Suresh Sundaram},
+  title    = {REAct: Rational Exponential Activation for Better Learning and Generalization in PINNs},
+  journal  = {Unknown Journal},
+  year     = {2025},
+  doi      = {10.1109/ICASSP49660.2025.10887788},
+  abstract = {Physics-Informed Neural Networks (PINNs) offer a promising approach to simulating physical systems. Still, their application is limited by optimization challenges, mainly due to the lack of activation functions that generalize well across several physical systems. Existing activation functions often lack such flexibility and generalization power. To address this issue, we introduce Rational Exponential Activation (REAct), a generalized form of tanh consisting of four learnable shape parameters. Experiments show that REAct outperforms many standard and benchmark activations, achieving an MSE three orders of magnitude lower than tanh on heat problems and generalizing well to finer grids and points beyond the training domain. It also excels at function approximation tasks and improves noise rejection in inverse problems, leading to more accurate parameter estimates across varying noise levels.}
+}
+
+@misc{a104fe01d341f235fd80ea98d6a8f35b8110df1d,
+  author   = {Ameya Dilip Jagtap and Kenji Kawaguchi and G. Karniadakis},
+  title    = {Locally adaptive activation functions with slope recovery term for deep and physics-informed neural networks},
+  journal  = {ArXiv},
+  year     = {2019},
+  volume   = {abs/1909.12228},
+  abstract = {We propose two approaches of locally adaptive activation functions namely, layer-wise and neuron-wise locally adaptive activation functions, which improve the performance of deep and physics-informed neural networks. The local adaptation of activation function is achieved by introducing a scalable parameter in each layer (layer-wise) and for every neuron (neuron-wise) separately, and then optimizing it using a variant of stochastic gradient descent algorithm. In order to further increase the training speed, an activation slope based slope recovery term is added in the loss function, which further accelerates convergence, thereby reducing the training cost. On the theoretical side, we prove that in the proposed method, the gradient descent algorithms are not attracted to sub-optimal critical points or local minima under practical conditions on the initialization and learning rate, and that the gradient dynamics of the proposed method is not achievable by base methods with any (adaptive) learning rates. We further show that the adaptive activation methods accelerate the convergence by implicitly multiplying conditioning matrices to the gradient of the base method without any explicit computation of the conditioning matrix and the matrix-vector product. The different adaptive activation functions are shown to induce different implicit conditioning matrices. Furthermore, the proposed methods with the slope recovery are shown to accelerate the training process.}
+}
+
+@misc{fe520ccac2a6bd50f75a4a34022fe54116871013,
+  author   = {Honghui Wang and Lu Lu and Shiji Song and Gao Huang},
+  title    = {Learning Specialized Activation Functions for Physics-informed Neural Networks},
+  journal  = {ArXiv},
+  year     = {2023},
+  doi      = {10.4208/cicp.OA-2023-0058},
+  volume   = {abs/2308.04073},
+  abstract = {Physics-informed neural networks (PINNs) are known to suffer from optimization difficulty. In this work, we reveal the connection between the optimization difficulty of PINNs and activation functions. Specifically, we show that PINNs exhibit high sensitivity to activation functions when solving PDEs with distinct properties. Existing works usually choose activation functions by inefficient trial-and-error. To avoid the inefficient manual selection and to alleviate the optimization difficulty of PINNs, we introduce adaptive activation functions to search for the optimal function when solving different problems. We compare different adaptive activation functions and discuss their limitations in the context of PINNs. Furthermore, we propose to tailor the idea of learning combinations of candidate activation functions to the PINNs optimization, which has a higher requirement for the smoothness and diversity on learned functions. This is achieved by removing activation functions which cannot provide higher-order derivatives from the candidate set and incorporating elementary functions with different properties according to our prior knowledge about the PDE at hand. We further enhance the search space with adaptive slopes. The proposed adaptive activation function can be used to solve different PDE systems in an interpretable way. Its effectiveness is demonstrated on a series of benchmarks. Code is available at https://github.com/LeapLabTHU/AdaAFforPINNs.}
+}
+
+@article{Sutfeld2018-io,
+  title        = {Adaptive Blending Units: Trainable activation functions for
+                  deep neural networks},
+  author       = {S{\"u}tfeld, Leon Ren{\'e} and Brieger, Flemming and Finger,
+                  Holger and F{\"u}llhase, Sonja and Pipa, Gordon},
+  abstract     = {The most widely used activation functions in current deep
+                  feed-forward neural networks are rectified linear units
+                  (ReLU), and many alternatives have been successfully applied,
+                  as well. However, none of the alternatives have managed to
+                  consistently outperform the rest and there is no unified
+                  theory connecting properties of the task and network with
+                  properties of activation functions for most efficient
+                  training. A possible solution is to have the network learn
+                  its preferred activation functions. In this work, we
+                  introduce Adaptive Blending Units (ABUs), a trainable linear
+                  combination of a set of activation functions. Since ABUs
+                  learn the shape, as well as the overall scaling of the
+                  activation function, we also analyze the effects of adaptive
+                  scaling in common activation functions. We experimentally
+                  demonstrate advantages of both adaptive scaling and ABUs over
+                  common activation functions across a set of systematically
+                  varied network specifications. We further show that adaptive
+                  scaling works by mitigating covariate shifts during training,
+                  and that the observed advantages in performance of ABUs
+                  likewise rely largely on the activation function's ability to
+                  adapt over the course of training.},
+  year         = 2018,
+  primaryclass = {cs.LG},
+  eprint       = {1806.10064}
+}
+
+@inproceedings{miyagawa2024physicsinformed,
+  title     = {Physics-informed Neural Networks for Functional Differential Equations: Cylindrical Approximation and Its Convergence Guarantees},
+  author    = {Taiki Miyagawa and Takeru Yokota},
+  booktitle = {The Thirty-eighth Annual Conference on Neural Information Processing Systems},
+  year      = {2024},
+  url       = {https://openreview.net/forum?id=H5z0XqEX57}
+}
