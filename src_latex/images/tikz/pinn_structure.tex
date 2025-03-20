@@ -1,6 +1,6 @@
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
-    \resizebox{\columnwidth}{!}{
+    \resizebox{0.8\columnwidth}{!}{
         \begin{tikzpicture}[
             % Define node styles
             neuron/.style={ellipse, draw, fill=brown!80, minimum width=1.3cm, minimum height=0.8cm},
@@ -61,15 +61,15 @@
 
         % PDE part
         \coordinate (pde_top_left) at (2,4);
-        \coordinate (pde_bottom_right) at (8,-4);
+        \coordinate (pde_bottom_right) at (9,-4);
         \node[box, fit={(pde_top_left) (pde_bottom_right)}] (pde) {};
         \node[above] at (pde.north) {\Large PDE$(\lambda)$};
 
         \node[pde] (f) at (3,2) {$f(\cdot)$};
-        \node[pde] (dt) at (3,0) {$\partial_t$};
+        \node[pde] (dt) at (3,0) {$\partial$};
         \node[pde] (nabla) at (3,-2) {$\nabla \cdot$};
 
-        \node[operation] (residual) at (6,0) {$\mathcal{F}:= u_t + \nabla \cdot f(u)$};
+        \node[operation] (residual) at (6,0) {$\mathcal{F}:= f(u, x_i, \frac{\partial{u}}{\partial{x_i}}, \frac{\partial^2{u}}{\partial{x_i^2}})$};
 
         % Connect PDE components
         \draw[arrow] (u) -- (f);
