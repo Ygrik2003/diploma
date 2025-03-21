@@ -107,17 +107,17 @@
 }
 
 @article{raissi2019physics,
-title = {Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations},
-journal = {Journal of Computational Physics},
-volume = {378},
-pages = {686-707},
-year = {2019},
-issn = {0021-9991},
-doi = {10.1016/j.jcp.2018.10.045},
-url = {https://www.sciencedirect.com/science/article/pii/S0021999118307125},
-author = {M. Raissi and P. Perdikaris and G.E. Karniadakis},
-keywords = {Data-driven scientific computing, Machine learning, Predictive modeling, Runge–Kutta methods, Nonlinear dynamics},
-abstract = {We introduce physics-informed neural networks – neural networks that are trained to solve supervised learning tasks while respecting any given laws of physics described by general nonlinear partial differential equations. In this work, we present our developments in the context of solving two main classes of problems: data-driven solution and data-driven discovery of partial differential equations. Depending on the nature and arrangement of the available data, we devise two distinct types of algorithms, namely continuous time and discrete time models. The first type of models forms a new family of data-efficient spatio-temporal function approximators, while the latter type allows the use of arbitrarily accurate implicit Runge–Kutta time stepping schemes with unlimited number of stages. The effectiveness of the proposed framework is demonstrated through a collection of classical problems in fluids, quantum mechanics, reaction–diffusion systems, and the propagation of nonlinear shallow-water waves.}
+  title    = {Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations},
+  journal  = {Journal of Computational Physics},
+  volume   = {378},
+  pages    = {686-707},
+  year     = {2019},
+  issn     = {0021-9991},
+  doi      = {10.1016/j.jcp.2018.10.045},
+  url      = {https://www.sciencedirect.com/science/article/pii/S0021999118307125},
+  author   = {M. Raissi and P. Perdikaris and G.E. Karniadakis},
+  keywords = {Data-driven scientific computing, Machine learning, Predictive modeling, Runge–Kutta methods, Nonlinear dynamics},
+  abstract = {We introduce physics-informed neural networks – neural networks that are trained to solve supervised learning tasks while respecting any given laws of physics described by general nonlinear partial differential equations. In this work, we present our developments in the context of solving two main classes of problems: data-driven solution and data-driven discovery of partial differential equations. Depending on the nature and arrangement of the available data, we devise two distinct types of algorithms, namely continuous time and discrete time models. The first type of models forms a new family of data-efficient spatio-temporal function approximators, while the latter type allows the use of arbitrarily accurate implicit Runge–Kutta time stepping schemes with unlimited number of stages. The effectiveness of the proposed framework is demonstrated through a collection of classical problems in fluids, quantum mechanics, reaction–diffusion systems, and the propagation of nonlinear shallow-water waves.}
 }
 
 @article{raissi2017physics,
@@ -139,20 +139,20 @@ abstract = {We introduce physics-informed neural networks – neural networks th
   year    = {2021}
 }
 
-@Article{karniadakis2021physics,
-author    = {Karniadakis, George Em and Kevrekidis, Ioannis G. and Lu, Lu and Perdikaris, Paris and Wang, Sifan and Yang, Liu},
-title     = {Physics-informed machine learning},
-journal   = {Nature Reviews Physics},
-year      = {2021},
-month     = {Jun},
-day       = {01},
-volume    = {3},
-number    = {6},
-pages     = {422-440},
-abstract  = {Despite great progress in simulating multiphysics problems using the numerical discretization of partial differential equations (PDEs), one still cannot seamlessly incorporate noisy data into existing algorithms, mesh generation remains complex, and high-dimensional problems governed by parameterized PDEs cannot be tackled. Moreover, solving inverse problems with hidden physics is often prohibitively expensive and requires different formulations and elaborate computer codes. Machine learning has emerged as a promising alternative, but training deep neural networks requires big data, not always available for scientific problems. Instead, such networks can be trained from additional information obtained by enforcing the physical laws (for example, at random points in the continuous space-time domain). Such physics-informed learning integrates (noisy) data and mathematical models, and implements them through neural networks or other kernel-based regression networks. Moreover, it may be possible to design specialized network architectures that automatically satisfy some of the physical invariants for better accuracy, faster training and improved generalization. Here, we review some of the prevailing trends in embedding physics into machine learning, present some of the current capabilities and limitations and discuss diverse applications of physics-informed learning both for forward and inverse problems, including discovering hidden physics and tackling high-dimensional problems.},
-issn      = {2522-5820},
-doi       = {10.1038/s42254-021-00314-5},
-url       = {https://doi.org/10.1038/s42254-021-00314-5}
+@article{karniadakis2021physics,
+  author   = {Karniadakis, George Em and Kevrekidis, Ioannis G. and Lu, Lu and Perdikaris, Paris and Wang, Sifan and Yang, Liu},
+  title    = {Physics-informed machine learning},
+  journal  = {Nature Reviews Physics},
+  year     = {2021},
+  month    = {Jun},
+  day      = {01},
+  volume   = {3},
+  number   = {6},
+  pages    = {422-440},
+  abstract = {Despite great progress in simulating multiphysics problems using the numerical discretization of partial differential equations (PDEs), one still cannot seamlessly incorporate noisy data into existing algorithms, mesh generation remains complex, and high-dimensional problems governed by parameterized PDEs cannot be tackled. Moreover, solving inverse problems with hidden physics is often prohibitively expensive and requires different formulations and elaborate computer codes. Machine learning has emerged as a promising alternative, but training deep neural networks requires big data, not always available for scientific problems. Instead, such networks can be trained from additional information obtained by enforcing the physical laws (for example, at random points in the continuous space-time domain). Such physics-informed learning integrates (noisy) data and mathematical models, and implements them through neural networks or other kernel-based regression networks. Moreover, it may be possible to design specialized network architectures that automatically satisfy some of the physical invariants for better accuracy, faster training and improved generalization. Here, we review some of the prevailing trends in embedding physics into machine learning, present some of the current capabilities and limitations and discuss diverse applications of physics-informed learning both for forward and inverse problems, including discovering hidden physics and tackling high-dimensional problems.},
+  issn     = {2522-5820},
+  doi      = {10.1038/s42254-021-00314-5},
+  url      = {https://doi.org/10.1038/s42254-021-00314-5}
 }
 
 @book{batchelor2000introduction,
@@ -183,13 +183,13 @@ url       = {https://doi.org/10.1038/s42254-021-00314-5}
 }
 
 @misc{cuomo2022scientific,
-      title={Scientific Machine Learning through Physics-Informed Neural Networks: Where we are and What's next}, 
-      author={Salvatore Cuomo and Vincenzo Schiano di Cola and Fabio Giampaolo and Gianluigi Rozza and Maziar Raissi and Francesco Piccialli},
-      year={2022},
-      eprint={2201.05624},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2201.05624}, 
+  title         = {Scientific Machine Learning through Physics-Informed Neural Networks: Where we are and What's next},
+  author        = {Salvatore Cuomo and Vincenzo Schiano di Cola and Fabio Giampaolo and Gianluigi Rozza and Maziar Raissi and Francesco Piccialli},
+  year          = {2022},
+  eprint        = {2201.05624},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2201.05624}
 }
 
 @article{mao2020physics,
@@ -211,23 +211,23 @@ url       = {https://doi.org/10.1038/s42254-021-00314-5}
 }
 
 @article{Tommaso2024pinn,
-  author  = {Tommaso, B. and Marco, F. and Paolo, N. and Lorenzo, P.},
-  title   = {Using Physics-Informed Neural Networks for Solving Navier-Stokes Equations in Complex Scenarios},
-  journal = {SSRN},
-  year    = {2024},
-  pages   = {25},
-  url     = {https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4963586},
+  author   = {Tommaso, B. and Marco, F. and Paolo, N. and Lorenzo, P.},
+  title    = {Using Physics-Informed Neural Networks for Solving Navier-Stokes Equations in Complex Scenarios},
+  journal  = {SSRN},
+  year     = {2024},
+  pages    = {25},
+  url      = {https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4963586},
   abstract = {Physics-Informed Neural Networks (PINNs) offer a promising approach for solving Navier-Stokes equations in fluid dynamics by embedding physical laws directly into the training process.}
 }
 
 @misc{neuralpde2023,
-  doi = {10.48550/ARXIV.2107.09443},
-  url = {https://arxiv.org/abs/2107.09443},
-  author = {Zubov, Kirill and McCarthy, Zoe and Ma, Yingbo and Calisto, Francesco and Pagliarino, Valerio and Azeglio, Simone and Bottero, Luca and Luján, Emmanuel and Sulzer, Valentin and Bharambe, Ashutosh and Vinchhi, Nand and Balakrishnan, Kaushik and Upadhyay, Devesh and Rackauckas, Chris},
-  keywords = {Mathematical Software (cs.MS), Symbolic Computation (cs.SC), FOS: Computer and information sciences, FOS: Computer and information sciences},
-  title = {NeuralPDE: Automating Physics-Informed Neural Networks (PINNs) with Error Approximations},
+  doi       = {10.48550/ARXIV.2107.09443},
+  url       = {https://arxiv.org/abs/2107.09443},
+  author    = {Zubov, Kirill and McCarthy, Zoe and Ma, Yingbo and Calisto, Francesco and Pagliarino, Valerio and Azeglio, Simone and Bottero, Luca and Luján, Emmanuel and Sulzer, Valentin and Bharambe, Ashutosh and Vinchhi, Nand and Balakrishnan, Kaushik and Upadhyay, Devesh and Rackauckas, Chris},
+  keywords  = {Mathematical Software (cs.MS), Symbolic Computation (cs.SC), FOS: Computer and information sciences, FOS: Computer and information sciences},
+  title     = {NeuralPDE: Automating Physics-Informed Neural Networks (PINNs) with Error Approximations},
   publisher = {arXiv},
-  year = {2021},
+  year      = {2021},
   copyright = {Creative Commons Attribution Non Commercial Share Alike 4.0 International}
 }
 
@@ -288,26 +288,28 @@ url       = {https://doi.org/10.1038/s42254-021-00314-5}
 }
 
 @misc{baydin2018automatic,
-      title={Automatic differentiation in machine learning: a survey}, 
-      author={Atilim Gunes Baydin and Barak A. Pearlmutter and Alexey Andreyevich Radul and Jeffrey Mark Siskind},
-      year={2018},
-      eprint={1502.05767},
-      archivePrefix={arXiv},
-      primaryClass={cs.SC},
-      url={https://arxiv.org/abs/1502.05767}, 
+  title         = {Automatic differentiation in machine learning: a survey},
+  author        = {Atilim Gunes Baydin and Barak A. Pearlmutter and Alexey Andreyevich Radul and Jeffrey Mark Siskind},
+  year          = {2018},
+  eprint        = {1502.05767},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.SC},
+  url           = {https://arxiv.org/abs/1502.05767}
 }
 
 @article{zhu2019physics,
-   title={Physics-constrained deep learning for high-dimensional surrogate modeling and uncertainty quantification without labeled data},
-   volume={394},
-   ISSN={0021-9991},
-   url={http://dx.doi.org/10.1016/j.jcp.2019.05.024},
-   doi={10.1016/j.jcp.2019.05.024},
-   journal={Journal of Computational Physics},
-   publisher={Elsevier BV},
-   author={Zhu, Yinhao and Zabaras, Nicholas and Koutsourelakis, Phaedon-Stelios and Perdikaris, Paris},
-   year={2019},
-   month=oct, pages={56-81} }
+  title     = {Physics-constrained deep learning for high-dimensional surrogate modeling and uncertainty quantification without labeled data},
+  volume    = {394},
+  issn      = {0021-9991},
+  url       = {http://dx.doi.org/10.1016/j.jcp.2019.05.024},
+  doi       = {10.1016/j.jcp.2019.05.024},
+  journal   = {Journal of Computational Physics},
+  publisher = {Elsevier BV},
+  author    = {Zhu, Yinhao and Zabaras, Nicholas and Koutsourelakis, Phaedon-Stelios and Perdikaris, Paris},
+  year      = {2019},
+  month     = oct,
+  pages     = {56-81}
+}
 
 @article{krishnapriyan2021characterizing,
   author  = {Krishnapriyan, A. and Gholami, A. and Zhe, S. and Kirby, R. and Mahoney, M. W.},
@@ -320,58 +322,62 @@ url       = {https://doi.org/10.1038/s42254-021-00314-5}
 }
 
 @misc{wang2022respecting,
-      title={Respecting causality is all you need for training physics-informed neural networks}, 
-      author={Sifan Wang and Shyam Sankaran and Paris Perdikaris},
-      year={2022},
-      eprint={2203.07404},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2203.07404}, 
+  title         = {Respecting causality is all you need for training physics-informed neural networks},
+  author        = {Sifan Wang and Shyam Sankaran and Paris Perdikaris},
+  year          = {2022},
+  eprint        = {2203.07404},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2203.07404}
 }
 
 @misc{wang2021understanding,
-      title={Understanding and mitigating gradient pathologies in physics-informed neural networks}, 
-      author={Sifan Wang and Yujun Teng and Paris Perdikaris},
-      year={2020},
-      eprint={2001.04536},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2001.04536}, 
+  title         = {Understanding and mitigating gradient pathologies in physics-informed neural networks},
+  author        = {Sifan Wang and Yujun Teng and Paris Perdikaris},
+  year          = {2020},
+  eprint        = {2001.04536},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2001.04536}
 }
 
 @article{jagtap2022physics,
-author = {Kashinath, Karthik and Mustafa, M. and Albert, Adrian and Wu, Jinlong and Jiang, C. and Esmaeilzadeh, Soheil and Azizzadenesheli, Kamyar and Wang, R. and Chattopadhyay, Ashesh and Singh, A. and Manepalli, A. and Chirila, D. and Yu, R. and Walters, R. and White, B. and Xiao, Heng and Tchelepi, Hamdi and Marcus, P. and Anandkumar, Animashree and Prabhat, Mr},
-year = {2021},
-month = {02},
-pages = {20200093},
-title = {Physics-informed machine learning: Case studies for weather and climate modelling},
-volume = {379},
-journal = {Philosophical transactions. Series A, Mathematical, physical, and engineering sciences},
-doi = {10.1098/rsta.2020.0093}
+  author  = {Kashinath, Karthik and Mustafa, M. and Albert, Adrian and Wu, Jinlong and Jiang, C. and Esmaeilzadeh, Soheil and Azizzadenesheli, Kamyar and Wang, R. and Chattopadhyay, Ashesh and Singh, A. and Manepalli, A. and Chirila, D. and Yu, R. and Walters, R. and White, B. and Xiao, Heng and Tchelepi, Hamdi and Marcus, P. and Anandkumar, Animashree and Prabhat, Mr},
+  year    = {2021},
+  month   = {02},
+  pages   = {20200093},
+  title   = {Physics-informed machine learning: Case studies for weather and climate modelling},
+  volume  = {379},
+  journal = {Philosophical transactions. Series A, Mathematical, physical, and engineering sciences},
+  doi     = {10.1098/rsta.2020.0093}
 }
 
 @article{sun2020surrogate,
-   title={Surrogate modeling for fluid flows based on physics-constrained deep learning without simulation data},
-   volume={361},
-   ISSN={0045-7825},
-   url={http://dx.doi.org/10.1016/j.cma.2019.112732},
-   DOI={10.1016/j.cma.2019.112732},
-   journal={Computer Methods in Applied Mechanics and Engineering},
-   publisher={Elsevier BV},
-   author={Sun, Luning and Gao, Han and Pan, Shaowu and Wang, Jian-Xun},
-   year={2020},
-   month=apr, pages={112732} }
+  title     = {Surrogate modeling for fluid flows based on physics-constrained deep learning without simulation data},
+  volume    = {361},
+  issn      = {0045-7825},
+  url       = {http://dx.doi.org/10.1016/j.cma.2019.112732},
+  doi       = {10.1016/j.cma.2019.112732},
+  journal   = {Computer Methods in Applied Mechanics and Engineering},
+  publisher = {Elsevier BV},
+  author    = {Sun, Luning and Gao, Han and Pan, Shaowu and Wang, Jian-Xun},
+  year      = {2020},
+  month     = apr,
+  pages     = {112732}
+}
 
 
 @article{lu2021deepxde,
-   title={DeepXDE: A Deep Learning Library for Solving Differential Equations},
-   volume={63},
-   ISSN={1095-7200},
-   url={http://dx.doi.org/10.1137/19M1274067},
-   DOI={10.1137/19m1274067},
-   number={1},
-   journal={SIAM Review},
-   publisher={Society for Industrial & Applied Mathematics (SIAM)},
-   author={Lu, Lu and Meng, Xuhui and Mao, Zhiping and Karniadakis, George Em},
-   year={2021},
-   month=jan, pages={208–228} }
+  title     = {DeepXDE: A Deep Learning Library for Solving Differential Equations},
+  volume    = {63},
+  issn      = {1095-7200},
+  url       = {http://dx.doi.org/10.1137/19M1274067},
+  doi       = {10.1137/19m1274067},
+  number    = {1},
+  journal   = {SIAM Review},
+  publisher = {Society for Industrial & Applied Mathematics (SIAM)},
+  author    = {Lu, Lu and Meng, Xuhui and Mao, Zhiping and Karniadakis, George Em},
+  year      = {2021},
+  month     = jan,
+  pages     = {208–228}
+}
