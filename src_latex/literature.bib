@@ -12,6 +12,7 @@
   journal  = {2021 20th IEEE International Conference on Machine Learning and Applications (ICMLA)},
   year     = {2021},
   doi      = {10.1109/ICMLA52953.2021.00266},
+  url      = {https://doi.org/10.1109/ICMLA52953.2021.00266},
   pages    = {1668-1673},
   abstract = {The interface between data-driven learning methods and classical simulation poses an interesting field offering a multitude of new applications. In this work, we build on the notion of physics-informed neural networks (PINNs) and employ them in the area of shallow-water equation (SWE) models. These models play an important role in modeling and simulating free-surface flow scenarios such as in flood-wave propagation or tsunami waves. Different formulations of the PINN residual are compared to each other and multiple optimizations are being evaluated to speed up the convergence rate. We test these with different 1-D and 2-D experiments and finally demonstrate that regarding a SWE scenario with varying bathymetry, the method is able to produce competitive results in comparison to the direct numerical simulation with a total relative L2 error of 8.9e−3.}
 }
@@ -32,6 +33,7 @@
   journal  = {Unknown Journal},
   year     = {2025},
   doi      = {10.1109/ICASSP49660.2025.10887788},
+  url      = {https://doi.org/10.1109/ICASSP49660.2025.10887788},
   abstract = {Physics-Informed Neural Networks (PINNs) offer a promising approach to simulating physical systems. Still, their application is limited by optimization challenges, mainly due to the lack of activation functions that generalize well across several physical systems. Existing activation functions often lack such flexibility and generalization power. To address this issue, we introduce Rational Exponential Activation (REAct), a generalized form of tanh consisting of four learnable shape parameters. Experiments show that REAct outperforms many standard and benchmark activations, achieving an MSE three orders of magnitude lower than tanh on heat problems and generalizing well to finer grids and points beyond the training domain. It also excels at function approximation tasks and improves noise rejection in inverse problems, leading to more accurate parameter estimates across varying noise levels.}
 }
 
@@ -39,6 +41,8 @@
   author   = {Ameya Dilip Jagtap and Kenji Kawaguchi and G. Karniadakis},
   title    = {Locally adaptive activation functions with slope recovery term for deep and physics-informed neural networks},
   journal  = {ArXiv},
+  url      = {https://arxiv.org/abs/1909.12228},
+  doi      = {10.1098/rspa.2020.0334},
   year     = {2019},
   volume   = {abs/1909.12228},
   abstract = {We propose two approaches of locally adaptive activation functions namely, layer-wise and neuron-wise locally adaptive activation functions, which improve the performance of deep and physics-informed neural networks. The local adaptation of activation function is achieved by introducing a scalable parameter in each layer (layer-wise) and for every neuron (neuron-wise) separately, and then optimizing it using a variant of stochastic gradient descent algorithm. In order to further increase the training speed, an activation slope based slope recovery term is added in the loss function, which further accelerates convergence, thereby reducing the training cost. On the theoretical side, we prove that in the proposed method, the gradient descent algorithms are not attracted to sub-optimal critical points or local minima under practical conditions on the initialization and learning rate, and that the gradient dynamics of the proposed method is not achievable by base methods with any (adaptive) learning rates. We further show that the adaptive activation methods accelerate the convergence by implicitly multiplying conditioning matrices to the gradient of the base method without any explicit computation of the conditioning matrix and the matrix-vector product. The different adaptive activation functions are shown to induce different implicit conditioning matrices. Furthermore, the proposed methods with the slope recovery are shown to accelerate the training process.}
@@ -50,6 +54,7 @@
   journal  = {ArXiv},
   year     = {2023},
   doi      = {10.4208/cicp.OA-2023-0058},
+  url      = {https://doi.org/10.4208/cicp.OA-2023-0058},
   volume   = {abs/2308.04073},
   abstract = {Physics-informed neural networks (PINNs) are known to suffer from optimization difficulty. In this work, we reveal the connection between the optimization difficulty of PINNs and activation functions. Specifically, we show that PINNs exhibit high sensitivity to activation functions when solving PDEs with distinct properties. Existing works usually choose activation functions by inefficient trial-and-error. To avoid the inefficient manual selection and to alleviate the optimization difficulty of PINNs, we introduce adaptive activation functions to search for the optimal function when solving different problems. We compare different adaptive activation functions and discuss their limitations in the context of PINNs. Furthermore, we propose to tailor the idea of learning combinations of candidate activation functions to the PINNs optimization, which has a higher requirement for the smoothness and diversity on learned functions. This is achieved by removing activation functions which cannot provide higher-order derivatives from the candidate set and incorporating elementary functions with different properties according to our prior knowledge about the PDE at hand. We further enhance the search space with adaptive slopes. The proposed adaptive activation function can be used to solve different PDE systems in an interpretable way. Its effectiveness is demonstrated on a series of benchmarks. Code is available at https://github.com/LeapLabTHU/AdaAFforPINNs.}
 }
@@ -82,7 +87,9 @@
                   adapt over the course of training.},
   year         = 2018,
   primaryclass = {cs.LG},
-  eprint       = {1806.10064}
+  eprint       = {1806.10064},
+  url          = {https://arxiv.org/abs/1806.10064},
+  doi          = {10.48550/arXiv.1806.10064}
 }
 
 @inproceedings{miyagawa2024physicsinformed,
@@ -116,17 +123,22 @@
   doi      = {10.1016/j.jcp.2018.10.045},
   url      = {https://www.sciencedirect.com/science/article/pii/S0021999118307125},
   author   = {M. Raissi and P. Perdikaris and G.E. Karniadakis},
-  keywords = {Data-driven scientific computing, Machine learning, Predictive modeling, Runge–Kutta methods, Nonlinear dynamics},
-  abstract = {We introduce physics-informed neural networks – neural networks that are trained to solve supervised learning tasks while respecting any given laws of physics described by general nonlinear partial differential equations. In this work, we present our developments in the context of solving two main classes of problems: data-driven solution and data-driven discovery of partial differential equations. Depending on the nature and arrangement of the available data, we devise two distinct types of algorithms, namely continuous time and discrete time models. The first type of models forms a new family of data-efficient spatio-temporal function approximators, while the latter type allows the use of arbitrarily accurate implicit Runge–Kutta time stepping schemes with unlimited number of stages. The effectiveness of the proposed framework is demonstrated through a collection of classical problems in fluids, quantum mechanics, reaction–diffusion systems, and the propagation of nonlinear shallow-water waves.}
+  keywords = {Data-driven scientific computing, Machine learning, Predictive modeling, Runge-Kutta methods, Nonlinear dynamics},
+  abstract = {We introduce physics-informed neural networks - neural networks that are trained to solve supervised learning tasks while respecting any given laws of physics described by general nonlinear partial differential equations. In this work, we present our developments in the context of solving two main classes of problems: data-driven solution and data-driven discovery of partial differential equations. Depending on the nature and arrangement of the available data, we devise two distinct types of algorithms, namely continuous time and discrete time models. The first type of models forms a new family of data-efficient spatio-temporal function approximators, while the latter type allows the use of arbitrarily accurate implicit Runge–Kutta time stepping schemes with unlimited number of stages. The effectiveness of the proposed framework is demonstrated through a collection of classical problems in fluids, quantum mechanics, reaction–diffusion systems, and the propagation of nonlinear shallow-water waves.}
 }
 
-@article{raissi2017physics,
-  author  = {Raissi, M. and Karniadakis, G. E.},
-  title   = {Hidden physics models: Machine learning of nonlinear partial differential equations},
-  journal = {Journal of Computational Physics},
-  volume  = {357},
-  pages   = {125--141},
-  year    = {2017}
+@article{Raissi_2018,
+   title     = {Hidden physics models: Machine learning of nonlinear partial differential equations},
+   volume    = {357},
+   ISSN      = {0021-9991},
+   url       = {http://dx.doi.org/10.1016/j.jcp.2017.11.039},
+   DOI       = {10.1016/j.jcp.2017.11.039},
+   journal   = {Journal of Computational Physics},
+   publisher = {Elsevier BV},
+   author    = {Raissi, Maziar and Karniadakis, George Em},
+   year      = {2018},
+   month     = mar,
+   pages     = {125-141} 
 }
 
 @article{cai2021physics,
@@ -136,7 +148,9 @@
   volume  = {143},
   number  = {6},
   pages   = {060801},
-  year    = {2021}
+  year    = {2021},
+  doi     = {10.1115/1.4050542},
+  url     = {https://asmedigitalcollection.asme.org/heattransfer/article/143/6/060801/1104439/Physics-Informed-Neural-Networks-for-Heat-Transfer}
 }
 
 @article{karniadakis2021physics,
@@ -161,6 +175,17 @@
   publisher = {Cambridge University Press},
   year      = {2000}
 }
+@inbook{batchelor2000introduction,
+  place      = {Cambridge},
+  series     = {Cambridge Mathematical Library},
+  title      = {Kinematics of the Flow Field},
+  booktitle  = {An Introduction to Fluid Dynamics},
+  publisher  = {Cambridge University Press},
+  author     = {Batchelor, G. K.},
+  year       = {2000},
+  collection = {Cambridge Mathematical Library},
+  url        = {https://archive.org/details/introductiontofl0000batc}
+}
 
 @article{yang2019adversarial,
   author  = {Yang, L. and Zhang, D. and Karniadakis, G. E.},
@@ -174,12 +199,17 @@
 }
 
 @article{jin2021nsfnets,
-  author  = {Jin, X. and Cai, S. and Li, H. and Karniadakis, G. E.},
-  title   = {NSFnets (Navier-Stokes flow nets): Physics-informed neural networks for the incompressible Navier-Stokes equations},
-  journal = {Journal of Computational Physics},
-  volume  = {426},
-  pages   = {109951},
-  year    = {2021}
+   title     = {NSFnets (Navier-Stokes flow nets): Physics-informed neural networks for the incompressible Navier-Stokes equations},
+   volume    = {426},
+   ISSN      = {0021-9991},
+   url       = {http://dx.doi.org/10.1016/j.jcp.2020.109951},
+   DOI       = {10.1016/j.jcp.2020.109951},
+   journal   = {Journal of Computational Physics},
+   publisher = {Elsevier BV},
+   author    = {Jin, Xiaowei and Cai, Shengze and Li, Hui and Karniadakis, George Em},
+   year      = {2021},
+   month     = feb,
+   pages     = {109951} 
 }
 
 @misc{cuomo2022scientific,
@@ -329,7 +359,8 @@
   title   = {Physics-informed machine learning: Case studies for weather and climate modelling},
   volume  = {379},
   journal = {Philosophical transactions. Series A, Mathematical, physical, and engineering sciences},
-  doi     = {10.1098/rsta.2020.0093}
+  doi     = {10.1098/rsta.2020.0093},
+  url     = {http://dx.doi.org/10.1098/rsta.2020.0093}
 }
 
 @article{sun2020surrogate,
