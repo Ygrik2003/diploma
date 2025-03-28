@@ -42,26 +42,20 @@ class ActivateFunctionController:
 
 
 class SinActivation(nn.Module):
-    def __init__(
-        self, a: DTYPE = 1.0, trainable: bool = False, *args, **kwargs
-    ) -> None:
+    def __init__(self, a=1.0, trainable: bool = False, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.trainable = trainable
-        self.a = nn.Parameter(torch.tensor(a), requires_grad=trainable)
+        self.a = a
 
     def forward(self, x: Tensor) -> Tensor:
         return torch.sin(self.a * x)
 
 
 class TanhActivation(nn.Module):
-    def __init__(
-        self, a: DTYPE = 1.0, trainable: bool = False, *args, **kwargs
-    ) -> None:
+    def __init__(self, a=1.0, trainable: bool = False, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.trainable = trainable
-        self.a = nn.Parameter(
-            torch.tensor(a, dtype=torch.get_default_dtype(), requires_grad=trainable)
-        )
+        self.a = a
         self.act = nn.Tanh()
 
     def forward(self, x: Tensor) -> Tensor:
@@ -111,13 +105,22 @@ class SoftplusActivation(nn.Module):
 
 
 class AdaptiveBlendingUnit(nn.Module):
-    def __init__(self, count_act_func: int = 5, *args, **kwargs) -> None:
+    def __init__(
+        self,
+        count_act_func: int = 5,
+        scale_sin: DTYPE = 1.0,
+        scale_tanh: DTYPE = 1.0,
+        *args,
+        **kwargs,
+    ) -> None:
         super().__init__(*args, **kwargs)
 
         assert 1 < count_act_func
         assert count_act_func < 6
 
         self.count_act_func = count_act_func
+        self.scale_sin = scale_sin
+        self.scale_tanh = scale_tanh
 
         self.weights = nn.Parameter(
             torch.zeros(
@@ -127,9 +130,7 @@ class AdaptiveBlendingUnit(nn.Module):
         self.softmax = nn.Softmax(dim=0)
 
         if count_act_func == 2:
-            self.scale_sin = 1.0
             self.sin = SinActivation(a=self.scale_sin, trainable=True)
-            self.scale_tanh = 1.0
             self.tanh = TanhActivation(a=self.scale_tanh, trainable=True)
             self.acts = lambda x: torch.stack([self.sin(x), self.tanh(x)], dim=-1)
 
