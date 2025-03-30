@@ -68,9 +68,7 @@ class SiLUActivation(nn.Module):
     ) -> None:
         super().__init__(*args, **kwargs)
         self.trainable = trainable
-        self.a = nn.Parameter(
-            torch.tensor(a, dtype=torch.get_default_dtype(), requires_grad=trainable)
-        )
+        self.a = a
         self.act = nn.SiLU()
 
     def forward(self, x: Tensor) -> Tensor:
@@ -83,7 +81,7 @@ class QuadraticActivation(nn.Module):
     ) -> None:
         super().__init__(*args, **kwargs)
         self.trainable = trainable
-        self.a = nn.Parameter(torch.tensor(a), requires_grad=trainable)
+        self.a = a
 
     def forward(self, x: Tensor) -> Tensor:
         return 1 / (1 + (self.a * x) ** 2)
@@ -95,9 +93,7 @@ class SoftplusActivation(nn.Module):
     ) -> None:
         super().__init__(*args, **kwargs)
         self.trainable = trainable
-        self.a = torch.tensor(
-            a, dtype=torch.get_default_dtype(), requires_grad=trainable
-        )
+        self.a = a
         self.act = nn.Softplus()
 
     def forward(self, x: Tensor) -> Tensor:
@@ -108,8 +104,11 @@ class AdaptiveBlendingUnit(nn.Module):
     def __init__(
         self,
         count_act_func: int = 5,
-        scale_sin: DTYPE = 1.0,
-        scale_tanh: DTYPE = 1.0,
+        scale_sin=1.0,
+        scale_tanh=1.0,
+        scale_swish=1.0,
+        scale_quadratic=1.0,
+        scale_softplus=1.0,
         *args,
         **kwargs,
     ) -> None:
@@ -121,6 +120,9 @@ class AdaptiveBlendingUnit(nn.Module):
         self.count_act_func = count_act_func
         self.scale_sin = scale_sin
         self.scale_tanh = scale_tanh
+        self.scale_swish = scale_swish
+        self.scale_quadratic = scale_quadratic
+        self.scale_softplus = scale_softplus
 
         self.weights = nn.Parameter(
             torch.zeros(
@@ -135,39 +137,27 @@ class AdaptiveBlendingUnit(nn.Module):
             self.acts = lambda x: torch.stack([self.sin(x), self.tanh(x)], dim=-1)
 
         elif count_act_func == 3:
-            self.scale_sin = 1.0
             self.sin = SinActivation(a=self.scale_sin, trainable=True)
-            self.scale_tanh = 1.0
             self.tanh = TanhActivation(a=self.scale_tanh, trainable=True)
-            self.scale_swish = 1.0
             self.swish = SiLUActivation(a=self.scale_swish, trainable=True)
             self.acts = lambda x: torch.stack(
                 [self.sin(x), self.tanh(x), self.swish(x)], dim=-1
             )
 
         elif count_act_func == 4:
-            self.scale_sin = 1.0
             self.sin = SinActivation(a=self.scale_sin, trainable=True)
-            self.scale_tanh = 1.0
             self.tanh = TanhActivation(a=self.scale_tanh, trainable=True)
-            self.scale_swish = 1.0
             self.swish = SiLUActivation(a=self.scale_swish, trainable=True)
-            self.scale_quadratic = 1.0
             self.quadratic = QuadraticActivation(a=self.scale_quadratic, trainable=True)
             self.acts = lambda x: torch.stack(
                 [self.sin(x), self.tanh(x), self.swish(x), self.quadratic(x)], dim=-1
             )
 
         elif count_act_func == 5:
-            self.scale_sin = 1.0
             self.sin = SinActivation(a=self.scale_sin, trainable=True)
-            self.scale_tanh = 1.0
             self.tanh = TanhActivation(a=self.scale_tanh, trainable=True)
-            self.scale_swish = 1.0
             self.swish = SiLUActivation(a=self.scale_swish, trainable=True)
-            self.scale_quadratic = 1.0
             self.quadratic = QuadraticActivation(a=self.scale_quadratic, trainable=True)
-            self.scale_softplus = 1.0
             self.softplus = SoftplusActivation(a=self.scale_softplus, trainable=True)
             self.acts = lambda x: torch.stack(
                 [

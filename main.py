@@ -1,28 +1,103 @@
+from functools import partial
+import os
+import tempfile
+from pathlib import Path
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.utils.data import random_split
+from ray import tune
+from ray import train
+import torchvision
+import torchvision.transforms as transforms
+from ray.tune import Checkpoint, get_checkpoint
+from ray.tune.schedulers import ASHAScheduler
+import ray.cloudpickle as pickle
 import numpy as np
-import matplotlib.pyplot as plt
 
 from flavors.activate_function import ActivateFunctionController, ActivateFunctions
 
-Lx = 5.0
-Ly = 1.0
-T = 1.0
-nu = 0.05
+import matplotlib.pyplot as plt
+import argparse
 
-barrier_Lx = 0.2
-barrier_Ly = 0.2
+config = {}
 
-barrier_x = 1
-barrier_y = Ly / 2 - barrier_Ly / 2
+config["Lx"] = 5.0
+config["Ly"] = 1.0
+config["T"] = 1.0
+config["nu"] = 0.05
+
+config["barrier_Lx"] = 0.2
+config["barrier_Ly"] = 0.2
+
+config["barrier_x"] = 1
+config["barrier_y"] = config["Ly"] / 2 - config["barrier_Ly"] / 2
+
+
+def visualize(model):
+    nx, ny, nt = 50, 50, 4
+    x = np.linspace(0, config["Lx"], nx)
+    y = np.linspace(0, config["Ly"], ny)
+    t = np.linspace(0, config["T"], nt)
+    X, Y, t_grid = np.meshgrid(x, y, t)
+    XYT = np.stack([X.flatten(), Y.flatten(), t_grid.flatten()], axis=-1)
+    XYT_tensor = torch.tensor(XYT, requires_grad=False).float()
+
+    X, Y = np.meshgrid(x, y)
+    XY = np.stack([X.flatten(), Y.flatten()], axis=-1)
+
+    with torch.no_grad():
+        predictions = model(XYT_tensor).numpy()
+
+    U = predictions[:, 0].reshape((ny, nx, nt))
+    V = predictions[:, 1].reshape((ny, nx, nt))
+    P = predictions[:, 2].reshape((ny, nx, nt))
+
+    fig, axs = plt.subplots(1, 2, figsize=(15, 5))
+    axs[0].quiver(
+        X,
+        Y,
+        U[:, :, int(nt - 1)],
+        V[:, :, int(nt - 1)],
+        scale=10,
+        scale_units="xy",
+    )
+    axs[0].set_title(f"Velocity Vector Field (u, v), t = {nt - 1}")
+    axs[0].set_xlabel("x")
+    axs[0].set_ylabel("y")
+
+    c3 = axs[1].contourf(X, Y, P[:, :, int(nt - 1)], levels=50, cmap="viridis")
+    axs[1].set_title("Pressure")
+    fig.colorbar(c3, ax=axs[1])
+    axs[1].set_xlabel("x")
+    axs[1].set_ylabel("y")
+
+    plt.tight_layout()
+    plt.show()
 
 
 class NavierStokesModel(nn.Module):
-    def __init__(self):
+    def __init__(
+        self,
+        scale_sin=1,
+        scale_tanh=1,
+        scale_swish=1,
+        scale_quadratic=1,
+        scale_softplus=1,
+    ):
         super(NavierStokesModel, self).__init__()
 
         self.activation_func = ActivateFunctionController(
-            activate_func=ActivateFunctions.AdaptiveBlendingUnit, args=dict()
+            activate_func=ActivateFunctions.AdaptiveBlendingUnit,
+            args=(
+                5,
+                scale_sin,
+                scale_tanh,
+                scale_swish,
+                scale_quadratic,
+                scale_softplus,
+            ),
         ).get()
 
         self.fc1 = nn.Linear(3, 128)
@@ -31,16 +106,13 @@ class NavierStokesModel(nn.Module):
         self.fc4 = nn.Linear(128, 3)
 
     def forward(self, x):
-        x = nn.ReLU(self.fc1(x))
+        x = self.activation_func(self.fc1(x))
         x = self.activation_func(self.fc2(x))
         x = self.activation_func(self.fc3(x))
         return self.fc4(x)
 
 
-model = NavierStokesModel()
-
-
-def compute_pde(xyt):
+def compute_pde(model, xyt):
     xyt.requires_grad_(True)
     up = model(xyt)
     u, v, p = up[:, 0], up[:, 1], up[:, 2]
@@ -61,36 +133,48 @@ def compute_pde(xyt):
 
     continuity = u_x + v_y
 
-    momentum_x = u_t + u * u_x + v * u_y + p_x - nu * (u_xx + u_yy)
-    momentum_y = v_t + u * v_x + v * v_y + p_y - nu * (v_xx + v_yy)
+    momentum_x = u_t + u * u_x + v * u_y + p_x - config["nu"] * (u_xx + u_yy)
+    momentum_y = v_t + u * v_x + v * v_y + p_y - config["nu"] * (v_xx + v_yy)
 
     return continuity, momentum_x, momentum_y
 
 
-def boundary_conditions():
+def boundary_conditions(model):
     num_points = 1000
-    t = T * np.random.random(num_points)
+    t = config["T"] * np.random.random(num_points)
     bottom_bc = torch.tensor(
         np.stack(
-            [np.random.uniform(0, Lx, num_points), np.zeros(num_points), t], axis=-1
+            [np.random.uniform(0, config["Lx"], num_points), np.zeros(num_points), t],
+            axis=-1,
         ),
         requires_grad=False,
     ).float()
     left_bc = torch.tensor(
         np.stack(
-            [np.zeros(num_points), np.random.uniform(0, Ly, num_points), t], axis=-1
+            [np.zeros(num_points), np.random.uniform(0, config["Ly"], num_points), t],
+            axis=-1,
         ),
         requires_grad=False,
     ).float()
     top_bc = torch.tensor(
         np.stack(
-            [np.random.uniform(0, Lx, num_points), np.full(num_points, Ly), t], axis=-1
+            [
+                np.random.uniform(0, config["Lx"], num_points),
+                np.full(num_points, config["Ly"]),
+                t,
+            ],
+            axis=-1,
         ),
         requires_grad=False,
     ).float()
     right_bc = torch.tensor(
         np.stack(
-            [np.full(num_points, Lx), np.random.uniform(0, Ly, num_points), t], axis=-1
+            [
+                np.full(num_points, config["Lx"]),
+                np.random.uniform(0, config["Ly"], num_points),
+                t,
+            ],
+            axis=-1,
         ),
         requires_grad=False,
     ).float()
@@ -101,7 +185,7 @@ def boundary_conditions():
     right_predict = model(right_bc)
 
     u, v, p = left_predict[:, 0], left_predict[:, 1], left_predict[:, 2]
-    bc_loss = torch.mean((u - (0.5 - (0.5 - left_bc[:, 1] / Ly) ** 2)) ** 2)
+    bc_loss = torch.mean((u - (0.5 - (0.5 - left_bc[:, 1] / config["Ly"]) ** 2)) ** 2)
 
     u, v, p = bottom_predict[:, 0], bottom_predict[:, 1], bottom_predict[:, 2]
     bc_loss += torch.mean(u**2 + v**2)
@@ -113,7 +197,7 @@ def boundary_conditions():
     return bc_loss
 
 
-def boundary_conditions_barrier():
+def boundary_conditions_barrier(model):
     xys = generate_bc_barrier_data()
 
     bottom_bc, left_bc, top_bc, right_bc, inside_bc = xys
@@ -138,24 +222,48 @@ def boundary_conditions_barrier():
     return bc_loss
 
 
+def loss_function(model, xyt):
+    continuity, momentum_x, momentum_y = compute_pde(model, xyt)
+    pde_loss = (
+        torch.mean(continuity**2)
+        + torch.mean(momentum_x**2)
+        + torch.mean(momentum_y**2)
+    )
+    bc_loss = boundary_conditions(model)
+    bc_barrier_loss = boundary_conditions_barrier(model)
+    total_loss = pde_loss + bc_loss + bc_barrier_loss
+    return total_loss
+
+
 def generate_data(num_points):
-    x = np.random.uniform(0, Lx, num_points)
-    y = np.random.uniform(0, Ly, num_points)
-    t = np.random.uniform(0, T, num_points)
-    xyt = np.stack([x, y, t], axis=-1)
-    return torch.tensor(xyt, requires_grad=True).float()
+    x_train = np.random.uniform(0, config["Lx"], num_points)
+    y_train = np.random.uniform(0, config["Ly"], num_points)
+    t_train = np.random.uniform(0, config["T"], num_points)
+    x_test = np.random.uniform(0, config["Lx"], num_points)
+    y_test = np.random.uniform(0, config["Ly"], num_points)
+    t_test = np.random.uniform(0, config["T"], num_points)
+    xyt_train = np.stack([x_train, y_train, t_train], axis=-1)
+    xyt_test = np.stack([x_test, y_test, t_test], axis=-1)
+    return (
+        torch.tensor(xyt_train, requires_grad=True).float(),
+        torch.tensor(xyt_test, requires_grad=True).float(),
+    )
 
 
 def generate_bc_barrier_data():
     num_points = 1000
-    x = np.random.uniform(barrier_x, barrier_x + barrier_Lx, num_points)
-    y = np.random.uniform(barrier_y, barrier_y + barrier_Ly, num_points)
-    t = T * np.random.random(num_points)
+    x = np.random.uniform(
+        config["barrier_x"], config["barrier_x"] + config["barrier_Lx"], num_points
+    )
+    y = np.random.uniform(
+        config["barrier_y"], config["barrier_y"] + config["barrier_Ly"], num_points
+    )
+    t = config["T"] * np.random.random(num_points)
 
-    bottom = barrier_y * np.ones(num_points)
-    left = barrier_x * np.ones(num_points)
-    top = (barrier_y + barrier_Ly) * np.ones(num_points)
-    right = (barrier_x + barrier_Lx) * np.ones(num_points)
+    bottom = config["barrier_y"] * np.ones(num_points)
+    left = config["barrier_x"] * np.ones(num_points)
+    top = (config["barrier_y"] + config["barrier_Ly"]) * np.ones(num_points)
+    right = (config["barrier_x"] + config["barrier_Lx"]) * np.ones(num_points)
 
     bottom_bc = np.stack([x, bottom, t], axis=-1)
     left_bc = np.stack([left, y, t], axis=-1)
@@ -172,71 +280,170 @@ def generate_bc_barrier_data():
     )
 
 
-def loss_function(xyt):
-    continuity, momentum_x, momentum_y = compute_pde(xyt)
-    pde_loss = (
-        torch.mean(continuity**2)
-        + torch.mean(momentum_x**2)
-        + torch.mean(momentum_y**2)
+g_trainset, g_testset = generate_data(1000)
+
+
+def load_data():
+
+    return g_trainset, g_testset
+
+
+def train_model(config_hyperparams):
+    model = NavierStokesModel(
+        config_hyperparams["scale_sin"],
+        config_hyperparams["scale_tanh"],
+        config_hyperparams["scale_swish"],
+        config_hyperparams["scale_quadratic"],
+        config_hyperparams["scale_softplus"],
     )
-    bc_loss = boundary_conditions()
-    bc_barrier_loss = boundary_conditions_barrier()
-    total_loss = pde_loss + bc_loss + bc_barrier_loss
-    return total_loss
+
+    device = "cpu"
+    model.to(device)
+
+    optimizer_adagrad = optim.Adagrad(model.parameters(), lr=config_hyperparams["lr"])
+    optimizer_adam = optim.Adam(model.parameters(), lr=config_hyperparams["lr"])
+    optimizer_asgd = optim.ASGD(model.parameters(), lr=config_hyperparams["lr"])
+    start_epoch = 0
+
+    # checkpoint = get_checkpoint()
+    # if checkpoint:
+    #     with checkpoint.as_directory() as checkpoint_dir:
+    #         data_path = Path(checkpoint_dir) / "data.pkl"
+    #         with open(data_path, "rb") as fp:
+    #             checkpoint_state = pickle.load(fp)
+    #         start_epoch = checkpoint_state["epoch"]
+    #         model.load_state_dict(checkpoint_state["net_state_dict"])
+    #         optimizer.load_state_dict(checkpoint_state["optimizer_state_dict"])
+    # else:
+    #     start_epoch = 0
+
+    trainset, testset = load_data()
+
+    def train(optimizer, epoch):
+        for epoch in range(start_epoch, epoch):
+            optimizer.zero_grad()
+
+            loss = loss_function(model, trainset)
+            loss.backward()
+            optimizer.step()
+
+            checkpoint_data = {
+                "epoch": epoch,
+                "net_state_dict": model.state_dict(),
+                "optimizer_state_dict": optimizer.state_dict(),
+                "scale_sin": config_hyperparams["scale_sin"],
+                "scale_tanh": config_hyperparams["scale_tanh"],
+                "scale_swish": config_hyperparams["scale_swish"],
+                "scale_quadratic": config_hyperparams["scale_quadratic"],
+                "scale_softplus": config_hyperparams["scale_softplus"],
+            }
+            with tempfile.TemporaryDirectory() as checkpoint_dir:
+                data_path = Path(checkpoint_dir) / "data.pkl"
+                with open(data_path, "wb") as fp:
+                    pickle.dump(checkpoint_data, fp)
+
+                checkpoint = Checkpoint.from_directory(checkpoint_dir)
+                tune.report(
+                    {
+                        "loss": float(torch.mean(loss)),
+                        "accuracy": 1 / float(torch.mean(loss)),
+                    },
+                    checkpoint=checkpoint,
+                )
+
+    train(optimizer_adagrad, 2000)
+    train(optimizer_adam, 5000)
+    train(optimizer_asgd, 3000)
+
+    print("Finished Training")
 
 
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+def test_accuracy(model):
+    trainset, testset = load_data()
+
+    loss = loss_function(model, testset)
+
+    return 1 / loss
 
 
-num_epochs = 10000
-num_points = 1000
-for epoch in range(num_epochs):
-    xyt = generate_data(num_points)
-    optimizer.zero_grad()
-    loss = loss_function(xyt)
-    loss.backward()
-    optimizer.step()
-
-    if epoch % 100 == 0:
-        print(f"Epoch {epoch}, Loss: {loss.item()}")
-
-print("Training completed.")
-
-
-nx, ny, nt = 50, 50, 4
-x = np.linspace(0, Lx, nx)
-y = np.linspace(0, Ly, ny)
-t = np.linspace(0, T, nt)
-X, Y, t_grid = np.meshgrid(x, y, t)
-XYT = np.stack([X.flatten(), Y.flatten(), t_grid.flatten()], axis=-1)
-XYT_tensor = torch.tensor(XYT, requires_grad=False).float()
-
-X, Y = np.meshgrid(x, y)
-XY = np.stack([X.flatten(), Y.flatten()], axis=-1)
-
-
-with torch.no_grad():
-    predictions = model(XYT_tensor).numpy()
-
-U = predictions[:, 0].reshape((ny, nx, nt))
-V = predictions[:, 1].reshape((ny, nx, nt))
-P = predictions[:, 2].reshape((ny, nx, nt))
-
-
-for t_i in t:
-    fig, axs = plt.subplots(1, 2, figsize=(15, 5))
-    axs[0].quiver(
-        X, Y, U[:, :, int(t_i * nt)], V[:, :, int(t_i * nt)], scale=10, scale_units="xy"
+def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
+    config = {
+        "scale_sin": tune.choice([4]),
+        "scale_tanh": tune.choice([0]),
+        "scale_swish": tune.choice([6]),
+        "scale_quadratic": tune.choice([6]),
+        "scale_softplus": tune.choice([0]),
+        "lr": tune.choice([1e-3]),
+    }
+    scheduler = ASHAScheduler(
+        metric="loss",
+        mode="min",
+        max_t=max_num_epochs,
+        grace_period=1,
+        reduction_factor=2,
     )
-    axs[0].set_title(f"Velocity Vector Field (u, v), t = {t_i}")
-    axs[0].set_xlabel("x")
-    axs[0].set_ylabel("y")
+    result = tune.run(
+        train_model,
+        resources_per_trial={"cpu": 1, "gpu": gpus_per_trial},
+        config=config,
+        num_samples=num_samples,
+        scheduler=scheduler,
+    )
 
-    c3 = axs[1].contourf(X, Y, P[:, :, int(t_i * nt)], levels=50, cmap="viridis")
-    axs[1].set_title("Pressure")
-    fig.colorbar(c3, ax=axs[1])
-    axs[1].set_xlabel("x")
-    axs[1].set_ylabel("y")
+    best_trial = result.get_best_trial("loss", "min", "last")
+    print(f"Best trial config: {best_trial.config}")
+    print(f"Best trial final loss: {best_trial.last_result['loss']}")
 
-    plt.tight_layout()
-    plt.show()
+    best_trained_model = NavierStokesModel(
+        best_trial.config["scale_sin"],
+        best_trial.config["scale_tanh"],
+        best_trial.config["scale_swish"],
+        best_trial.config["scale_quadratic"],
+        best_trial.config["scale_softplus"],
+    )
+    device = "cpu"
+    best_trained_model.to(device)
+
+    best_checkpoint = result.get_best_checkpoint(
+        trial=best_trial, metric="accuracy", mode="max"
+    )
+    with best_checkpoint.as_directory() as checkpoint_dir:
+        data_path = Path(checkpoint_dir) / "data.pkl"
+        with open(data_path, "rb") as fp:
+            best_checkpoint_data = pickle.load(fp)
+
+        best_trained_model.load_state_dict(best_checkpoint_data["net_state_dict"])
+        test_acc = test_accuracy(best_trained_model)
+        print("Best trial test set accuracy: {}".format(test_acc))
+
+    visualize(best_trained_model)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Load and visualize a Navier-Stokes model checkpoint."
+    )
+    parser.add_argument("--checkpoint", type=str, help="Path to the checkpoint file.")
+    args = parser.parse_args()
+
+    if args.checkpoint:
+        # Load the checkpoint
+        with open(args.checkpoint, "rb") as fp:
+            checkpoint_data = pickle.load(fp)
+
+        # Create a model and load its state
+        model = NavierStokesModel(
+            checkpoint_data["scale_sin"],
+            checkpoint_data["scale_tanh"],
+            checkpoint_data["scale_swish"],
+            checkpoint_data["scale_quadratic"],
+            checkpoint_data["scale_softplus"],
+        )
+        device = "cpu"
+        model.to(device)
+        model.load_state_dict(checkpoint_data["net_state_dict"])
+
+        # Visualize the model
+        visualize(model)
+    else:
+        main(num_samples=100, max_num_epochs=10000, gpus_per_trial=0)
