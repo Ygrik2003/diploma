@@ -4,14 +4,9 @@ import tempfile
 from pathlib import Path
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
-from torch.utils.data import random_split
 from ray import tune
-from ray import train
-import torchvision
-import torchvision.transforms as transforms
-from ray.tune import Checkpoint, get_checkpoint
+from ray.tune import Checkpoint
 from ray.tune.schedulers import ASHAScheduler
 import ray.cloudpickle as pickle
 import numpy as np
@@ -26,7 +21,7 @@ config = {}
 config["Lx"] = 5.0
 config["Ly"] = 1.0
 config["T"] = 1.0
-config["nu"] = 0.05
+config["nu"] = 0.005
 
 config["barrier_Lx"] = 0.2
 config["barrier_Ly"] = 0.2
@@ -100,16 +95,14 @@ class NavierStokesModel(nn.Module):
             ),
         ).get()
 
-        self.fc1 = nn.Linear(3, 128)
-        self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, 128)
-        self.fc4 = nn.Linear(128, 3)
+        self.fc1 = nn.Linear(3, 64)
+        self.fc2 = nn.Linear(64, 64)
+        self.fc3 = nn.Linear(64, 3)
 
     def forward(self, x):
         x = self.activation_func(self.fc1(x))
         x = self.activation_func(self.fc2(x))
-        x = self.activation_func(self.fc3(x))
-        return self.fc4(x)
+        return self.fc3(x)
 
 
 def compute_pde(model, xyt):
@@ -140,7 +133,7 @@ def compute_pde(model, xyt):
 
 
 def boundary_conditions(model):
-    num_points = 1000
+    num_points = 100
     t = config["T"] * np.random.random(num_points)
     bottom_bc = torch.tensor(
         np.stack(
@@ -185,7 +178,9 @@ def boundary_conditions(model):
     right_predict = model(right_bc)
 
     u, v, p = left_predict[:, 0], left_predict[:, 1], left_predict[:, 2]
-    bc_loss = torch.mean((u - (0.5 - (0.5 - left_bc[:, 1] / config["Ly"]) ** 2)) ** 2)
+    bc_loss = torch.mean(
+        (u - (0.5 - (0.5 - left_bc[:, 1] / config["Ly"]) ** 2)) ** 2 + torch.abs(v)
+    )
 
     u, v, p = bottom_predict[:, 0], bottom_predict[:, 1], bottom_predict[:, 2]
     bc_loss += torch.mean(u**2 + v**2)
@@ -235,13 +230,13 @@ def loss_function(model, xyt):
     return total_loss
 
 
-def generate_data(num_points):
-    x_train = np.random.uniform(0, config["Lx"], num_points)
-    y_train = np.random.uniform(0, config["Ly"], num_points)
-    t_train = np.random.uniform(0, config["T"], num_points)
-    x_test = np.random.uniform(0, config["Lx"], num_points)
-    y_test = np.random.uniform(0, config["Ly"], num_points)
-    t_test = np.random.uniform(0, config["T"], num_points)
+def generate_data(num_points, test_fill=0.8):
+    x_train = np.random.uniform(0, config["Lx"], int((1 - test_fill) * num_points))
+    y_train = np.random.uniform(0, config["Ly"], int((1 - test_fill) * num_points))
+    t_train = np.random.uniform(0, config["T"], int((1 - test_fill) * num_points))
+    x_test = np.random.uniform(0, config["Lx"], int(test_fill * num_points))
+    y_test = np.random.uniform(0, config["Ly"], int(test_fill * num_points))
+    t_test = np.random.uniform(0, config["T"], int(test_fill * num_points))
     xyt_train = np.stack([x_train, y_train, t_train], axis=-1)
     xyt_test = np.stack([x_test, y_test, t_test], axis=-1)
     return (
@@ -251,7 +246,7 @@ def generate_data(num_points):
 
 
 def generate_bc_barrier_data():
-    num_points = 1000
+    num_points = 100
     x = np.random.uniform(
         config["barrier_x"], config["barrier_x"] + config["barrier_Lx"], num_points
     )
@@ -284,7 +279,7 @@ g_trainset, g_testset = generate_data(1000)
 
 
 def load_data():
-
+    global g_trainset, g_testset
     return g_trainset, g_testset
 
 
@@ -303,23 +298,21 @@ def train_model(config_hyperparams):
     optimizer_adagrad = optim.Adagrad(model.parameters(), lr=config_hyperparams["lr"])
     optimizer_adam = optim.Adam(model.parameters(), lr=config_hyperparams["lr"])
     optimizer_asgd = optim.ASGD(model.parameters(), lr=config_hyperparams["lr"])
-    start_epoch = 0
-
-    # checkpoint = get_checkpoint()
-    # if checkpoint:
-    #     with checkpoint.as_directory() as checkpoint_dir:
-    #         data_path = Path(checkpoint_dir) / "data.pkl"
-    #         with open(data_path, "rb") as fp:
-    #             checkpoint_state = pickle.load(fp)
-    #         start_epoch = checkpoint_state["epoch"]
-    #         model.load_state_dict(checkpoint_state["net_state_dict"])
-    #         optimizer.load_state_dict(checkpoint_state["optimizer_state_dict"])
-    # else:
-    #     start_epoch = 0
 
     trainset, testset = load_data()
 
     def train(optimizer, epoch):
+        start_epoch = 0
+        # checkpoint = get_checkpoint()
+        # if checkpoint:
+        #     with checkpoint.as_directory() as checkpoint_dir:
+        #         data_path = Path(checkpoint_dir) / "data.pkl"
+        #         with open(data_path, "rb") as fp:
+        #             checkpoint_state = pickle.load(fp)
+        #         start_epoch = checkpoint_state["epoch"]
+        #         model.load_state_dict(checkpoint_state["net_state_dict"])
+        #         optimizer.load_state_dict(checkpoint_state["optimizer_state_dict"])
+
         for epoch in range(start_epoch, epoch):
             optimizer.zero_grad()
 
@@ -352,8 +345,8 @@ def train_model(config_hyperparams):
                 )
 
     train(optimizer_adagrad, 2000)
-    train(optimizer_adam, 5000)
-    train(optimizer_asgd, 3000)
+    train(optimizer_adam, 2000)
+    train(optimizer_asgd, 2000)
 
     print("Finished Training")
 
@@ -368,12 +361,12 @@ def test_accuracy(model):
 
 def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
     config = {
-        "scale_sin": tune.choice([4]),
-        "scale_tanh": tune.choice([0]),
-        "scale_swish": tune.choice([6]),
-        "scale_quadratic": tune.choice([6]),
-        "scale_softplus": tune.choice([0]),
-        "lr": tune.choice([1e-3]),
+        "scale_sin": tune.grid_search([0.1 * i for i in range(50)]),
+        "scale_tanh": tune.grid_search([0.1 * i for i in range(50)]),
+        "scale_swish": tune.grid_search([0.1 * i for i in range(50)]),
+        "scale_quadratic": tune.grid_search([0.1 * i for i in range(50)]),
+        "scale_softplus": tune.grid_search([0.1 * i for i in range(50)]),
+        "lr": tune.choice([1e-3, 1e-4, 1e-5]),
     }
     scheduler = ASHAScheduler(
         metric="loss",
