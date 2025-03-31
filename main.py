@@ -184,9 +184,9 @@ def boundary_conditions(model):
 
     u, v, p = bottom_predict[:, 0], bottom_predict[:, 1], bottom_predict[:, 2]
     bc_loss += torch.mean(u**2 + v**2)
-    u, v, p = right_predict[:, 0], right_predict[:, 1], right_predict[:, 2]
-    bc_loss += torch.mean(u**2 + v**2)
     u, v, p = top_predict[:, 0], top_predict[:, 1], top_predict[:, 2]
+    bc_loss += torch.mean(u**2 + v**2)
+    u, v, p = right_predict[:, 0], right_predict[:, 1], right_predict[:, 2]
     bc_loss += torch.mean(p**2)
 
     return bc_loss
@@ -361,12 +361,12 @@ def test_accuracy(model):
 
 def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
     config = {
-        "scale_sin": tune.grid_search([0.1 * i for i in range(50)]),
-        "scale_tanh": tune.grid_search([0.1 * i for i in range(50)]),
-        "scale_swish": tune.grid_search([0.1 * i for i in range(50)]),
-        "scale_quadratic": tune.grid_search([0.1 * i for i in range(50)]),
-        "scale_softplus": tune.grid_search([0.1 * i for i in range(50)]),
-        "lr": tune.choice([1e-3, 1e-4, 1e-5]),
+        "scale_sin": tune.grid_search([0.1 * i for i in range(10)]),
+        "scale_tanh": tune.grid_search([0.1 * i for i in range(10)]),
+        "scale_swish": tune.grid_search([0.1 * i for i in range(10)]),
+        "scale_quadratic": tune.grid_search([0.1 * i for i in range(10)]),
+        "scale_softplus": tune.grid_search([0.1 * i for i in range(10)]),
+        "lr": tune.choice([1e-3, 1e-4]),
     }
     scheduler = ASHAScheduler(
         metric="loss",
