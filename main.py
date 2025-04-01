@@ -21,7 +21,7 @@ config = {}
 config["Lx"] = 5.0
 config["Ly"] = 1.0
 config["T"] = 1.0
-config["nu"] = 0.005
+config["Re"] = 200
 
 config["barrier_Lx"] = 0.2
 config["barrier_Ly"] = 0.2
@@ -126,8 +126,8 @@ def compute_pde(model, xyt):
 
     continuity = u_x + v_y
 
-    momentum_x = u_t + u * u_x + v * u_y + p_x - config["nu"] * (u_xx + u_yy)
-    momentum_y = v_t + u * v_x + v * v_y + p_y - config["nu"] * (v_xx + v_yy)
+    momentum_x = u_t + u * u_x + v * u_y + p_x - (u_xx + u_yy) / config["Re"]
+    momentum_y = v_t + u * v_x + v * v_y + p_y - (v_xx + v_yy) / config["Re"]
 
     return continuity, momentum_x, momentum_y
 
@@ -179,7 +179,8 @@ def boundary_conditions(model):
 
     u, v, p = left_predict[:, 0], left_predict[:, 1], left_predict[:, 2]
     bc_loss = torch.mean(
-        (u - (0.5 - (0.5 - left_bc[:, 1] / config["Ly"]) ** 2)) ** 2 + torch.abs(v)
+        # (u - (0.5 - (0.5 - left_bc[:, 1] / config["Ly"]) ** 2)) ** 2 + torch.abs(v)
+        torch.sqrt((u - 1) ** 2 + v**2)
     )
 
     u, v, p = bottom_predict[:, 0], bottom_predict[:, 1], bottom_predict[:, 2]
@@ -201,10 +202,11 @@ def boundary_conditions_barrier(model):
     left_predict = model(left_bc)
     top_predict = model(top_bc)
     right_predict = model(right_bc)
-    inside_predict = model(inside_bc)
+    # inside_predict = model(inside_bc)
 
-    u, v, p = inside_predict[:, 0], inside_predict[:, 1], inside_predict[:, 2]
-    bc_loss = torch.mean(u**2 + v**2)
+    bc_loss = 0
+    # u, v, p = inside_predict[:, 0], inside_predict[:, 1], inside_predict[:, 2]
+    # bc_loss = torch.mean(u**2 + v**2)
 
     u, v, p = bottom_predict[:, 0], bottom_predict[:, 1], bottom_predict[:, 2]
     bc_loss += torch.mean(u**2 + v**2)
@@ -219,7 +221,7 @@ def boundary_conditions_barrier(model):
 
 def loss_function(model, xyt):
     continuity, momentum_x, momentum_y = compute_pde(model, xyt)
-    pde_loss = (
+    pde_loss = torch.sqrt(
         torch.mean(continuity**2)
         + torch.mean(momentum_x**2)
         + torch.mean(momentum_y**2)
@@ -361,12 +363,12 @@ def test_accuracy(model):
 
 def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
     config = {
-        "scale_sin": tune.grid_search([0.1 * i for i in range(10)]),
-        "scale_tanh": tune.grid_search([0.1 * i for i in range(10)]),
-        "scale_swish": tune.grid_search([0.1 * i for i in range(10)]),
-        "scale_quadratic": tune.grid_search([0.1 * i for i in range(10)]),
-        "scale_softplus": tune.grid_search([0.1 * i for i in range(10)]),
-        "lr": tune.choice([1e-3, 1e-4]),
+        "scale_sin": tune.grid_search([0.3]),
+        "scale_tanh": tune.grid_search([0]),
+        "scale_swish": tune.grid_search([0.8]),
+        "scale_quadratic": tune.grid_search([0.2]),
+        "scale_softplus": tune.grid_search([0.8]),
+        "lr": tune.choice([1e-3]),
     }
     scheduler = ASHAScheduler(
         metric="loss",
