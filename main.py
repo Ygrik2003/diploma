@@ -14,6 +14,7 @@ import numpy as np
 from flavors.activate_function import ActivateFunctionController, ActivateFunctions
 
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import argparse
 
 config = {}
@@ -21,12 +22,12 @@ config = {}
 config["Lx"] = 5.0
 config["Ly"] = 1.0
 config["T"] = 1.0
-config["Re"] = 200
+config["Re"] = 1000
 
-config["barrier_Lx"] = 0.2
-config["barrier_Ly"] = 0.2
+config["barrier_Lx"] = 0.1
+config["barrier_Ly"] = 0.1
 
-config["barrier_x"] = 1
+config["barrier_x"] = 2
 config["barrier_y"] = config["Ly"] / 2 - config["barrier_Ly"] / 2
 
 
@@ -49,6 +50,15 @@ def visualize(model):
     V = predictions[:, 1].reshape((ny, nx, nt))
     P = predictions[:, 2].reshape((ny, nx, nt))
 
+    rect = patches.Rectangle(
+        (config["barrier_x"], config["barrier_y"]),
+        config["barrier_Lx"],
+        config["barrier_Ly"],
+        linewidth=1,
+        edgecolor="r",
+        facecolor="none",
+    )
+
     fig, axs = plt.subplots(1, 2, figsize=(15, 5))
     axs[0].quiver(
         X,
@@ -61,12 +71,14 @@ def visualize(model):
     axs[0].set_title(f"Velocity Vector Field (u, v), t = {nt - 1}")
     axs[0].set_xlabel("x")
     axs[0].set_ylabel("y")
+    axs[0].add_patch(rect)
 
     c3 = axs[1].contourf(X, Y, P[:, :, int(nt - 1)], levels=50, cmap="viridis")
     axs[1].set_title("Pressure")
     fig.colorbar(c3, ax=axs[1])
     axs[1].set_xlabel("x")
     axs[1].set_ylabel("y")
+    # axs[1].add_patch(rect)
 
     plt.tight_layout()
     plt.show()
@@ -95,14 +107,16 @@ class NavierStokesModel(nn.Module):
             ),
         ).get()
 
-        self.fc1 = nn.Linear(3, 64)
-        self.fc2 = nn.Linear(64, 64)
-        self.fc3 = nn.Linear(64, 3)
+        self.fc1 = nn.Linear(3, 32)
+        self.fc2 = nn.Linear(32, 32)
+        self.fc3 = nn.Linear(32, 32)
+        self.fc4 = nn.Linear(32, 3)
 
     def forward(self, x):
         x = self.activation_func(self.fc1(x))
         x = self.activation_func(self.fc2(x))
-        return self.fc3(x)
+        x = self.activation_func(self.fc3(x))
+        return self.fc4(x)
 
 
 def compute_pde(model, xyt):
@@ -133,7 +147,7 @@ def compute_pde(model, xyt):
 
 
 def boundary_conditions(model):
-    num_points = 100
+    num_points = 200
     t = config["T"] * np.random.random(num_points)
     bottom_bc = torch.tensor(
         np.stack(
@@ -180,15 +194,15 @@ def boundary_conditions(model):
     u, v, p = left_predict[:, 0], left_predict[:, 1], left_predict[:, 2]
     bc_loss = torch.mean(
         # (u - (0.5 - (0.5 - left_bc[:, 1] / config["Ly"]) ** 2)) ** 2 + torch.abs(v)
-        torch.sqrt((u - 1) ** 2 + v**2)
+        torch.sqrt(torch.square(u - 1) + torch.square(v))
     )
 
     u, v, p = bottom_predict[:, 0], bottom_predict[:, 1], bottom_predict[:, 2]
-    bc_loss += torch.mean(u**2 + v**2)
+    bc_loss += torch.mean(torch.sqrt(torch.square(u) + torch.square(v)))
     u, v, p = top_predict[:, 0], top_predict[:, 1], top_predict[:, 2]
-    bc_loss += torch.mean(u**2 + v**2)
+    bc_loss += torch.mean(torch.sqrt(torch.square(u) + torch.square(v)))
     u, v, p = right_predict[:, 0], right_predict[:, 1], right_predict[:, 2]
-    bc_loss += torch.mean(p**2)
+    bc_loss += torch.mean(torch.abs(p))
 
     return bc_loss
 
@@ -206,26 +220,22 @@ def boundary_conditions_barrier(model):
 
     bc_loss = 0
     # u, v, p = inside_predict[:, 0], inside_predict[:, 1], inside_predict[:, 2]
-    # bc_loss = torch.mean(u**2 + v**2)
+    # bc_loss = torch.mean(torch.square(u) + torch.square(v))
 
     u, v, p = bottom_predict[:, 0], bottom_predict[:, 1], bottom_predict[:, 2]
-    bc_loss += torch.mean(u**2 + v**2)
+    bc_loss += torch.mean(torch.sqrt(torch.square(u) + torch.square(v)))
     u, v, p = left_predict[:, 0], left_predict[:, 1], left_predict[:, 2]
-    bc_loss += torch.mean(u**2 + v**2)
+    bc_loss += torch.mean(torch.sqrt(torch.square(u) + torch.square(v)))
     u, v, p = right_predict[:, 0], right_predict[:, 1], right_predict[:, 2]
-    bc_loss += torch.mean(u**2 + v**2)
+    bc_loss += torch.mean(torch.sqrt(torch.square(u) + torch.square(v)))
     u, v, p = top_predict[:, 0], top_predict[:, 1], top_predict[:, 2]
-    bc_loss += torch.mean(u**2 + v**2)
+    bc_loss += torch.mean(torch.sqrt(torch.square(u) + torch.square(v)))
     return bc_loss
 
 
 def loss_function(model, xyt):
     continuity, momentum_x, momentum_y = compute_pde(model, xyt)
-    pde_loss = torch.sqrt(
-        torch.mean(continuity**2)
-        + torch.mean(momentum_x**2)
-        + torch.mean(momentum_y**2)
-    )
+    pde_loss = torch.mean(torch.sqrt(continuity**2 + momentum_x**2 + momentum_y**2))
     bc_loss = boundary_conditions(model)
     bc_barrier_loss = boundary_conditions_barrier(model)
     total_loss = pde_loss + bc_loss + bc_barrier_loss
@@ -248,7 +258,7 @@ def generate_data(num_points, test_fill=0.8):
 
 
 def generate_bc_barrier_data():
-    num_points = 100
+    num_points = 200
     x = np.random.uniform(
         config["barrier_x"], config["barrier_x"] + config["barrier_Lx"], num_points
     )
@@ -305,15 +315,6 @@ def train_model(config_hyperparams):
 
     def train(optimizer, epoch):
         start_epoch = 0
-        # checkpoint = get_checkpoint()
-        # if checkpoint:
-        #     with checkpoint.as_directory() as checkpoint_dir:
-        #         data_path = Path(checkpoint_dir) / "data.pkl"
-        #         with open(data_path, "rb") as fp:
-        #             checkpoint_state = pickle.load(fp)
-        #         start_epoch = checkpoint_state["epoch"]
-        #         model.load_state_dict(checkpoint_state["net_state_dict"])
-        #         optimizer.load_state_dict(checkpoint_state["optimizer_state_dict"])
 
         for epoch in range(start_epoch, epoch):
             optimizer.zero_grad()
@@ -363,12 +364,12 @@ def test_accuracy(model):
 
 def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
     config = {
-        "scale_sin": tune.grid_search([0.3]),
-        "scale_tanh": tune.grid_search([0]),
-        "scale_swish": tune.grid_search([0.8]),
-        "scale_quadratic": tune.grid_search([0.2]),
-        "scale_softplus": tune.grid_search([0.8]),
-        "lr": tune.choice([1e-3]),
+        "scale_sin": 1,
+        "scale_tanh": tune.grid_search([0, 1]),
+        "scale_swish": tune.grid_search([0, 1]),
+        "scale_quadratic": tune.grid_search([0, 1]),
+        "scale_softplus": tune.grid_search([0, 1]),
+        "lr": tune.choice([1e-3, 1e-4]),
     }
     scheduler = ASHAScheduler(
         metric="loss",
