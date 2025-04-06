@@ -1,5 +1,3 @@
-from functools import partial
-import os
 import tempfile
 from pathlib import Path
 import torch
@@ -14,20 +12,26 @@ import numpy as np
 from flavors.activate_function import ActivateFunctionController, ActivateFunctions
 
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import argparse
+
 
 config = {}
 
 config["Lx"] = 5.0
 config["Ly"] = 1.0
 config["T"] = 1.0
-config["Re"] = 200
+config["mu"] = 0.001
+config["U"] = 2
 
-config["barrier_Lx"] = 0.2
-config["barrier_Ly"] = 0.2
+
+config["barrier_Lx"] = 0.5
+config["barrier_Ly"] = 0.5
 
 config["barrier_x"] = 1
 config["barrier_y"] = config["Ly"] / 2 - config["barrier_Ly"] / 2
+
+config["Re"] = 1 * config["U"] * config["barrier_Ly"] / config["mu"]
 
 
 def visualize(model):
@@ -40,7 +44,6 @@ def visualize(model):
     XYT_tensor = torch.tensor(XYT, requires_grad=False).float()
 
     X, Y = np.meshgrid(x, y)
-    XY = np.stack([X.flatten(), Y.flatten()], axis=-1)
 
     with torch.no_grad():
         predictions = model(XYT_tensor).numpy()
@@ -49,26 +52,89 @@ def visualize(model):
     V = predictions[:, 1].reshape((ny, nx, nt))
     P = predictions[:, 2].reshape((ny, nx, nt))
 
-    fig, axs = plt.subplots(1, 2, figsize=(15, 5))
-    axs[0].quiver(
-        X,
-        Y,
-        U[:, :, int(nt - 1)],
-        V[:, :, int(nt - 1)],
-        scale=10,
-        scale_units="xy",
-    )
-    axs[0].set_title(f"Velocity Vector Field (u, v), t = {nt - 1}")
-    axs[0].set_xlabel("x")
-    axs[0].set_ylabel("y")
+    for t in [0, nt - 1]:
+        rect = patches.Rectangle(
+            (config["barrier_x"], config["barrier_y"]),
+            config["barrier_Lx"],
+            config["barrier_Ly"],
+            linewidth=1,
+            edgecolor="r",
+            facecolor="none",
+        )
+        fig, axs = plt.subplots(1, 2, figsize=(15, 5))
+        axs[0].quiver(
+            X,
+            Y,
+            U[:, :, int(t)],
+            V[:, :, int(t)],
+            scale=10,
+            scale_units="xy",
+        )
 
-    c3 = axs[1].contourf(X, Y, P[:, :, int(nt - 1)], levels=50, cmap="viridis")
-    axs[1].set_title("Pressure")
-    fig.colorbar(c3, ax=axs[1])
-    axs[1].set_xlabel("x")
-    axs[1].set_ylabel("y")
+        axs[0].set_title(
+            f"Velocity Vector Field (u, v), t = {config['T'] * t / (nt-1)} Re = {config['Re']}"
+        )
+        axs[0].set_xlabel("x")
+        axs[0].set_ylabel("y")
+        axs[0].add_patch(rect)
 
-    plt.tight_layout()
+        c3 = axs[1].contourf(X, Y, P[:, :, int(t)], levels=50, cmap="viridis")
+        axs[1].set_title("Pressure")
+        fig.colorbar(c3, ax=axs[1])
+        axs[1].set_xlabel("x")
+        axs[1].set_ylabel("y")
+
+        ################################################################################
+
+        # c1 = axs[0].contourf(X, Y, U[:, :, int(t)], levels=50, cmap="viridis")
+        # axs[0].set_title(
+        #     f"Velocity Field u, t = {config['T'] * t / (nt-1)} Re = {config['Re']}"
+        # )
+        # fig.colorbar(c1, ax=axs[0])
+        # axs[0].set_xlabel("x")
+        # axs[0].set_ylabel("y")
+
+        # c2 = axs[1].contourf(X, Y, V[:, :, int(t)], levels=50, cmap="viridis")
+        # axs[1].set_title(
+        #     f"Velocity Field v, t = {config['T'] * t / (nt-1)} Re = {config['Re']}"
+        # )
+        # fig.colorbar(c2, ax=axs[1])
+        # axs[1].set_xlabel("x")
+        # axs[1].set_ylabel("y")
+
+        #############################################################
+
+        # c1 = axs[0].contourf(
+        #     X,
+        #     Y,
+        #     np.sqrt(U[:, :, int(t)] ** 2 + V[:, :, int(t)] ** 2),
+        #     levels=50,
+        #     cmap="viridis",
+        # )
+        # axs[0].set_title(
+        #     f"Velocity Field u, t = {config['T'] * t / (nt-1)} Re = {config['Re']}"
+        # )
+        # fig.colorbar(c1, ax=axs[0])
+        # axs[0].set_xlabel("x")
+        # axs[0].set_ylabel("y")
+
+        # c2 = axs[1].contourf(X, Y, P[:, :, int(t)], levels=50, cmap="viridis")
+        # axs[1].set_title("Pressure")
+        # fig.colorbar(c2, ax=axs[1])
+        # axs[1].set_xlabel("x")
+        # axs[1].set_ylabel("y")
+
+        ###################################################################
+
+        plt.tight_layout()
+        plt.show()
+
+    plt.plot(pde_loss_arr, label="pde_loss")
+    plt.plot(bc_loss_arr, label="bc_loss")
+    plt.plot(bc_barrier_loss_arr, label="bc_barrier_loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.legend()
     plt.show()
 
 
@@ -102,13 +168,11 @@ class NavierStokesModel(nn.Module):
     def forward(self, x):
         x = self.activation_func(self.fc1(x))
         x = self.activation_func(self.fc2(x))
-        return self.fc3(x)
+        x = self.activation_func(self.fc3(x))
+        return x
 
 
-def compute_pde(model, xyt):
-    xyt.requires_grad_(True)
-    up = model(xyt)
-    u, v, p = up[:, 0], up[:, 1], up[:, 2]
+def compute_pde(u, v, p, xyt):
 
     u_x = torch.autograd.grad(u.sum(), xyt, create_graph=True)[0][:, 0]
     u_y = torch.autograd.grad(u.sum(), xyt, create_graph=True)[0][:, 1]
@@ -133,7 +197,7 @@ def compute_pde(model, xyt):
 
 
 def boundary_conditions(model):
-    num_points = 100
+    num_points = 1000
     t = config["T"] * np.random.random(num_points)
     bottom_bc = torch.tensor(
         np.stack(
@@ -180,7 +244,7 @@ def boundary_conditions(model):
     u, v, p = left_predict[:, 0], left_predict[:, 1], left_predict[:, 2]
     bc_loss = torch.mean(
         # (u - (0.5 - (0.5 - left_bc[:, 1] / config["Ly"]) ** 2)) ** 2 + torch.abs(v)
-        torch.sqrt((u - 1) ** 2 + v**2)
+        torch.sqrt((u - config["U"]) ** 2 + v**2)
     )
 
     u, v, p = bottom_predict[:, 0], bottom_predict[:, 1], bottom_predict[:, 2]
@@ -219,8 +283,18 @@ def boundary_conditions_barrier(model):
     return bc_loss
 
 
+pde_loss_arr = []
+bc_loss_arr = []
+bc_barrier_loss_arr = []
+
+
 def loss_function(model, xyt):
-    continuity, momentum_x, momentum_y = compute_pde(model, xyt)
+    global pde_loss_arr, bc_loss_arr, bc_barrier_loss_arr
+    xyt.requires_grad_(True)
+    up = model(xyt)
+    u, v, p = up[:, 0], up[:, 1], up[:, 2]
+
+    continuity, momentum_x, momentum_y = compute_pde(u, v, p, xyt)
     pde_loss = torch.sqrt(
         torch.mean(continuity**2)
         + torch.mean(momentum_x**2)
@@ -228,7 +302,12 @@ def loss_function(model, xyt):
     )
     bc_loss = boundary_conditions(model)
     bc_barrier_loss = boundary_conditions_barrier(model)
+
     total_loss = pde_loss + bc_loss + bc_barrier_loss
+    pde_loss_arr.append(float(pde_loss.float()))
+    bc_loss_arr.append(float(bc_loss.float()))
+    bc_barrier_loss_arr.append(float(bc_barrier_loss))
+
     return total_loss
 
 
@@ -248,7 +327,7 @@ def generate_data(num_points, test_fill=0.8):
 
 
 def generate_bc_barrier_data():
-    num_points = 100
+    num_points = 1000
     x = np.random.uniform(
         config["barrier_x"], config["barrier_x"] + config["barrier_Lx"], num_points
     )
@@ -305,16 +384,6 @@ def train_model(config_hyperparams):
 
     def train(optimizer, epoch):
         start_epoch = 0
-        # checkpoint = get_checkpoint()
-        # if checkpoint:
-        #     with checkpoint.as_directory() as checkpoint_dir:
-        #         data_path = Path(checkpoint_dir) / "data.pkl"
-        #         with open(data_path, "rb") as fp:
-        #             checkpoint_state = pickle.load(fp)
-        #         start_epoch = checkpoint_state["epoch"]
-        #         model.load_state_dict(checkpoint_state["net_state_dict"])
-        #         optimizer.load_state_dict(checkpoint_state["optimizer_state_dict"])
-
         for epoch in range(start_epoch, epoch):
             optimizer.zero_grad()
 
@@ -332,7 +401,7 @@ def train_model(config_hyperparams):
                 "scale_quadratic": config_hyperparams["scale_quadratic"],
                 "scale_softplus": config_hyperparams["scale_softplus"],
             }
-            with tempfile.TemporaryDirectory() as checkpoint_dir:
+            with tempfile.TemporaryDirectory(dir="D:/tune") as checkpoint_dir:
                 data_path = Path(checkpoint_dir) / "data.pkl"
                 with open(data_path, "wb") as fp:
                     pickle.dump(checkpoint_data, fp)
@@ -346,9 +415,9 @@ def train_model(config_hyperparams):
                     checkpoint=checkpoint,
                 )
 
-    train(optimizer_adagrad, 2000)
-    train(optimizer_adam, 2000)
-    train(optimizer_asgd, 2000)
+    train(optimizer_adagrad, 1000)
+    train(optimizer_adam, 8000)
+    train(optimizer_asgd, 8000)
 
     print("Finished Training")
 
@@ -363,12 +432,12 @@ def test_accuracy(model):
 
 def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
     config = {
-        "scale_sin": tune.grid_search([0.3]),
-        "scale_tanh": tune.grid_search([0]),
-        "scale_swish": tune.grid_search([0.8]),
-        "scale_quadratic": tune.grid_search([0.2]),
-        "scale_softplus": tune.grid_search([0.8]),
-        "lr": tune.choice([1e-3]),
+        "scale_sin": 1,
+        "scale_tanh": 0.1,
+        "scale_swish": 0.7,
+        "scale_quadratic": 1,
+        "scale_softplus": 0.7,
+        "lr": 1e-3,
     }
     scheduler = ASHAScheduler(
         metric="loss",
@@ -383,6 +452,7 @@ def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
         config=config,
         num_samples=num_samples,
         scheduler=scheduler,
+        storage_path="D:/checkpoints",
     )
 
     best_trial = result.get_best_trial("loss", "min", "last")

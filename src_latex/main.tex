@@ -176,9 +176,12 @@ isbn=false,                                         % Не показывать 
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows, positioning, fit, backgrounds, calc}
 
+% Graphs
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 
 % !TeX TXS-program:compile = --shell-escape
-\usepackage[outputdir=.build]{minted} % Programming language syntax highlight
+\usepackage{minted} % Programming language syntax highlight
 
 %%% Вставляем по очереди все содержательные части документа %%%
 
@@ -196,6 +199,7 @@ isbn=false,                                         % Не показывать 
 
 % \input{introdution}
 \input{literature_survey}
+\input{methods}
 % \input{diploma_work}
 
 \printbibliography[title=Список использованных источников] % Автособираемый список литературы
