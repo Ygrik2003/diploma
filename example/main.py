@@ -3,6 +3,7 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.tensorboard import SummaryWriter
 from ray import tune
 from ray.tune import Checkpoint
 from ray.tune.schedulers import ASHAScheduler
@@ -22,7 +23,7 @@ config["Lx"] = 5.0
 config["Ly"] = 1.0
 config["T"] = 1.0
 config["mu"] = 0.001
-config["U"] = 2
+config["U"] = 5
 
 
 config["barrier_Lx"] = 0.5
@@ -32,6 +33,9 @@ config["barrier_x"] = 1
 config["barrier_y"] = config["Ly"] / 2 - config["barrier_Ly"] / 2
 
 config["Re"] = 1 * config["U"] * config["barrier_Ly"] / config["mu"]
+
+
+writer = SummaryWriter()
 
 
 def visualize(model):
@@ -129,14 +133,6 @@ def visualize(model):
         plt.tight_layout()
         plt.show()
 
-    plt.plot(pde_loss_arr, label="pde_loss")
-    plt.plot(bc_loss_arr, label="bc_loss")
-    plt.plot(bc_barrier_loss_arr, label="bc_barrier_loss")
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss")
-    plt.legend()
-    plt.show()
-
 
 class NavierStokesModel(nn.Module):
     def __init__(
@@ -193,6 +189,10 @@ def compute_pde(u, v, p, xyt):
     momentum_x = u_t + u * u_x + v * u_y + p_x - (u_xx + u_yy) / config["Re"]
     momentum_y = v_t + u * v_x + v * v_y + p_y - (v_xx + v_yy) / config["Re"]
 
+    writer.add_scalar("pde/continuity", torch.mean(continuity), global_epoch)
+    writer.add_scalar("pde/momentum_x", torch.mean(momentum_x), global_epoch)
+    writer.add_scalar("pde/momentum_y", torch.mean(momentum_y), global_epoch)
+
     return continuity, momentum_x, momentum_y
 
 
@@ -242,19 +242,29 @@ def boundary_conditions(model):
     right_predict = model(right_bc)
 
     u, v, p = left_predict[:, 0], left_predict[:, 1], left_predict[:, 2]
-    bc_loss = torch.mean(
-        # (u - (0.5 - (0.5 - left_bc[:, 1] / config["Ly"]) ** 2)) ** 2 + torch.abs(v)
-        torch.sqrt((u - config["U"]) ** 2 + v**2)
+    left_loss = torch.mean(
+        (u - (0.5 - config["U"] * (0.5 - left_bc[:, 1] / config["Ly"]) ** 2)) ** 2
+        + v**2
+        + (p - 1) ** 2
+        # torch.sqrt((u - config["U"]) ** 2 + v**2 + (p - 1) ** 2)
     )
 
     u, v, p = bottom_predict[:, 0], bottom_predict[:, 1], bottom_predict[:, 2]
-    bc_loss += torch.mean(u**2 + v**2)
+    bottom_loss = torch.mean(u**2 + v**2)
     u, v, p = top_predict[:, 0], top_predict[:, 1], top_predict[:, 2]
-    bc_loss += torch.mean(u**2 + v**2)
+    top_loss = torch.mean(u**2 + v**2)
     u, v, p = right_predict[:, 0], right_predict[:, 1], right_predict[:, 2]
-    bc_loss += torch.mean(p**2)
+    right_loss = torch.mean(p**2)
 
-    return bc_loss
+    writer.add_scalar("bc/bottom_loss", bottom_loss, global_epoch)
+    writer.add_scalar("bc/left_loss", left_loss, global_epoch)
+    writer.add_scalar("bc/right_loss", right_loss, global_epoch)
+    writer.add_scalar("bc/top_loss", top_loss, global_epoch)
+
+    return bottom_loss + left_loss + right_loss + top_loss
+
+
+global_epoch = 0
 
 
 def boundary_conditions_barrier(model):
@@ -268,28 +278,27 @@ def boundary_conditions_barrier(model):
     right_predict = model(right_bc)
     # inside_predict = model(inside_bc)
 
-    bc_loss = 0
     # u, v, p = inside_predict[:, 0], inside_predict[:, 1], inside_predict[:, 2]
     # bc_loss = torch.mean(u**2 + v**2)
 
     u, v, p = bottom_predict[:, 0], bottom_predict[:, 1], bottom_predict[:, 2]
-    bc_loss += torch.mean(u**2 + v**2)
+    bottom_loss = torch.mean(u**2 + v**2)
     u, v, p = left_predict[:, 0], left_predict[:, 1], left_predict[:, 2]
-    bc_loss += torch.mean(u**2 + v**2)
+    left_loss = torch.mean(u**2 + v**2)
     u, v, p = right_predict[:, 0], right_predict[:, 1], right_predict[:, 2]
-    bc_loss += torch.mean(u**2 + v**2)
+    right_loss = torch.mean(u**2 + v**2)
     u, v, p = top_predict[:, 0], top_predict[:, 1], top_predict[:, 2]
-    bc_loss += torch.mean(u**2 + v**2)
-    return bc_loss
+    top_loss = torch.mean(u**2 + v**2)
 
+    writer.add_scalar("bc_barrier/bottom_loss", bottom_loss, global_epoch)
+    writer.add_scalar("bc_barrier/left_loss", left_loss, global_epoch)
+    writer.add_scalar("bc_barrier/right_loss", right_loss, global_epoch)
+    writer.add_scalar("bc_barrier/top_loss", top_loss, global_epoch)
 
-pde_loss_arr = []
-bc_loss_arr = []
-bc_barrier_loss_arr = []
+    return bottom_loss + left_loss + right_loss + top_loss
 
 
 def loss_function(model, xyt):
-    global pde_loss_arr, bc_loss_arr, bc_barrier_loss_arr
     xyt.requires_grad_(True)
     up = model(xyt)
     u, v, p = up[:, 0], up[:, 1], up[:, 2]
@@ -303,10 +312,7 @@ def loss_function(model, xyt):
     bc_loss = boundary_conditions(model)
     bc_barrier_loss = boundary_conditions_barrier(model)
 
-    total_loss = pde_loss + bc_loss + bc_barrier_loss
-    pde_loss_arr.append(float(pde_loss.float()))
-    bc_loss_arr.append(float(bc_loss.float()))
-    bc_barrier_loss_arr.append(float(bc_barrier_loss))
+    total_loss = pde_loss + 10 * bc_loss + bc_barrier_loss
 
     return total_loss
 
@@ -383,43 +389,47 @@ def train_model(config_hyperparams):
     trainset, testset = load_data()
 
     def train(optimizer, epoch):
+        global global_epoch
         start_epoch = 0
         for epoch in range(start_epoch, epoch):
+            global_epoch += 1
             optimizer.zero_grad()
 
             loss = loss_function(model, trainset)
             loss.backward()
             optimizer.step()
 
-            checkpoint_data = {
-                "epoch": epoch,
-                "net_state_dict": model.state_dict(),
-                "optimizer_state_dict": optimizer.state_dict(),
-                "scale_sin": config_hyperparams["scale_sin"],
-                "scale_tanh": config_hyperparams["scale_tanh"],
-                "scale_swish": config_hyperparams["scale_swish"],
-                "scale_quadratic": config_hyperparams["scale_quadratic"],
-                "scale_softplus": config_hyperparams["scale_softplus"],
-            }
-            with tempfile.TemporaryDirectory(dir="D:/tune") as checkpoint_dir:
-                data_path = Path(checkpoint_dir) / "data.pkl"
-                with open(data_path, "wb") as fp:
-                    pickle.dump(checkpoint_data, fp)
+            # checkpoint_data = {
+            #     "epoch": epoch,
+            #     "net_state_dict": model.state_dict(),
+            #     "optimizer_state_dict": optimizer.state_dict(),
+            #     "scale_sin": config_hyperparams["scale_sin"],
+            #     "scale_tanh": config_hyperparams["scale_tanh"],
+            #     "scale_swish": config_hyperparams["scale_swish"],
+            #     "scale_quadratic": config_hyperparams["scale_quadratic"],
+            #     "scale_softplus": config_hyperparams["scale_softplus"],
+            # }
+            # with tempfile.TemporaryDirectory(dir="D:/tune") as checkpoint_dir:
+            #     data_path = Path(checkpoint_dir) / "data.pkl"
+            #     with open(data_path, "wb") as fp:
+            #         pickle.dump(checkpoint_data, fp)
 
-                checkpoint = Checkpoint.from_directory(checkpoint_dir)
-                tune.report(
-                    {
-                        "loss": float(torch.mean(loss)),
-                        "accuracy": 1 / float(torch.mean(loss)),
-                    },
-                    checkpoint=checkpoint,
-                )
+            #     checkpoint = Checkpoint.from_directory(checkpoint_dir)
+            #     tune.report(
+            #         {
+            #             "loss": float(torch.mean(loss)),
+            #             "accuracy": 1 / float(torch.mean(loss)),
+            #         },
+            #         checkpoint=checkpoint,
+            #     )
 
     train(optimizer_adagrad, 1000)
     train(optimizer_adam, 8000)
-    train(optimizer_asgd, 8000)
+    train(optimizer_asgd, 1000)
 
     print("Finished Training")
+
+    return model
 
 
 def test_accuracy(model):
@@ -446,42 +456,43 @@ def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
         grace_period=1,
         reduction_factor=2,
     )
-    result = tune.run(
-        train_model,
-        resources_per_trial={"cpu": 1, "gpu": gpus_per_trial},
-        config=config,
-        num_samples=num_samples,
-        scheduler=scheduler,
-        storage_path="D:/checkpoints",
-    )
+    # result = tune.run(
+    #     train_model,
+    #     resources_per_trial={"cpu": 1, "gpu": gpus_per_trial},
+    #     config=config,
+    #     num_samples=num_samples,
+    #     scheduler=scheduler,
+    #     storage_path="D:/checkpoints",
+    # )
+    result = train_model(config)
+    visualize(result)
 
-    best_trial = result.get_best_trial("loss", "min", "last")
-    print(f"Best trial config: {best_trial.config}")
-    print(f"Best trial final loss: {best_trial.last_result['loss']}")
+    # best_trial = result.get_best_trial("loss", "min", "last")
+    # print(f"Best trial config: {best_trial.config}")
+    # print(f"Best trial final loss: {best_trial.last_result['loss']}")
 
-    best_trained_model = NavierStokesModel(
-        best_trial.config["scale_sin"],
-        best_trial.config["scale_tanh"],
-        best_trial.config["scale_swish"],
-        best_trial.config["scale_quadratic"],
-        best_trial.config["scale_softplus"],
-    )
-    device = "cpu"
-    best_trained_model.to(device)
+    # best_trained_model = NavierStokesModel(
+    #     best_trial.config["scale_sin"],
+    #     best_trial.config["scale_tanh"],
+    #     best_trial.config["scale_swish"],
+    #     best_trial.config["scale_quadratic"],
+    #     best_trial.config["scale_softplus"],
+    # )
+    # best_trained_model.to(device)
 
-    best_checkpoint = result.get_best_checkpoint(
-        trial=best_trial, metric="accuracy", mode="max"
-    )
-    with best_checkpoint.as_directory() as checkpoint_dir:
-        data_path = Path(checkpoint_dir) / "data.pkl"
-        with open(data_path, "rb") as fp:
-            best_checkpoint_data = pickle.load(fp)
+    # best_checkpoint = result.get_best_checkpoint(
+    #     trial=best_trial, metric="accuracy", mode="max"
+    # )
+    # with best_checkpoint.as_directory() as checkpoint_dir:
+    #     data_path = Path(checkpoint_dir) / "data.pkl"
+    #     with open(data_path, "rb") as fp:
+    #         best_checkpoint_data = pickle.load(fp)
 
-        best_trained_model.load_state_dict(best_checkpoint_data["net_state_dict"])
-        test_acc = test_accuracy(best_trained_model)
-        print("Best trial test set accuracy: {}".format(test_acc))
+    #     best_trained_model.load_state_dict(best_checkpoint_data["net_state_dict"])
+    #     test_acc = test_accuracy(best_trained_model)
+    #     print("Best trial test set accuracy: {}".format(test_acc))
 
-    visualize(best_trained_model)
+    # visualize(best_trained_model)
 
 
 if __name__ == "__main__":

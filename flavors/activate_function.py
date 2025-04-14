@@ -15,6 +15,7 @@ class ActivateFunctions(Enum):
     QuadraticActivation = 4
     SoftplusActivation = 5
     AdaptiveBlendingUnit = 6
+    REAct = 7
 
 
 class ActivateFunctionController:
@@ -35,6 +36,8 @@ class ActivateFunctionController:
             return SoftplusActivation(*self.args)
         elif self.activate_func == ActivateFunctions.AdaptiveBlendingUnit:
             return AdaptiveBlendingUnit(*self.args)
+        elif self.activate_func == ActivateFunctions.REAct:
+            return REAct(*self.args)
         else:
             raise ValueError(
                 f"Activation function {self.activate_func} not implemented"
@@ -174,5 +177,31 @@ class AdaptiveBlendingUnit(nn.Module):
         weights_softmax = self.softmax(self.weights)
 
         out = torch.matmul(self.acts(x), weights_softmax)
+
+        return out
+
+
+class REAct(nn.Module):
+    def __init__(
+        self,
+        a=1.0,
+        b=1.0,
+        c=1.0,
+        d=1.0,
+        *args,
+        **kwargs,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+
+        self.acts = lambda x: (1 - torch.exp(a * x + b)) / (1 + torch.exp(c * x + d))
+
+    def forward(self, x: Tensor) -> Tensor:
+
+        out = self.acts(x)
 
         return out
