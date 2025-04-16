@@ -1,7 +1,19 @@
+try:
+    import api
+except ModuleNotFoundError as e:
+    import os
+    import sys
+
+    original_dir = os.getcwd()
+    sys.path.insert(1, f"{original_dir}/src")
+
+    import api
+
+
 import unittest
 import numpy as np
 
-from geometry.shapes.rectangle import *
+from api.geometry.shapes.rectangle import *
 
 
 class TestRectangle(unittest.TestCase):

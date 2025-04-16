@@ -1,4 +1,4 @@
-from geometry.shapes.shape import *
+from api.geometry.shapes.shape import *
 
 
 class Rectangle(Shape):
