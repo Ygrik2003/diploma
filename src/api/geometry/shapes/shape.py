@@ -3,6 +3,7 @@ from enum import Enum
 
 from numpy.typing import NDArray
 import numpy as np
+import torch 
 
 dtype = np.float32
 
@@ -77,6 +78,8 @@ class Shape(metaclass=ABCMeta):
         :rtype: NDArray[np.bool_]
         """
         raise NotImplementedError("Not implemented for base class")
+
+    def apply(self, x: torch.Tensor)
 
     @property
     def dimension(self) -> int:
