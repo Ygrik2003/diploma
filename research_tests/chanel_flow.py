@@ -1,4 +1,3 @@
-from flavors.activate_function import ActivateFunctionController, ActivateFunctions
 from itertools import product
 from pathlib import Path
 from ray import tune
@@ -18,6 +17,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+
+torch.set_default_dtype(torch.float64)
+
+from flavors.activate_function import ActivateFunctionController, ActivateFunctions
+
+
 config = {}
 
 config["Lx"] = 20.0
@@ -30,13 +35,13 @@ config["Re"] = 1000
 
 
 exact_solution = torch.tensor(
-    pd.read_csv("vector_field_data.csv", header=None).to_numpy()
-).float()
+    pd.read_csv("data/vector_field_data.csv", header=None).to_numpy()
+)
 exact_solution = exact_solution[~torch.any(exact_solution.isnan(), dim=1)]
 
-exact_solution_coords = torch.tensor(np.array(exact_solution)[:, :2]).float()
-exact_solution_u = torch.tensor(np.array(exact_solution)[:, 2]).float()
-exact_solution_v = torch.tensor(np.array(exact_solution)[:, 3]).float()
+exact_solution_coords = torch.tensor(np.array(exact_solution)[:, :2])
+exact_solution_u = torch.tensor(np.array(exact_solution)[:, 2])
+exact_solution_v = torch.tensor(np.array(exact_solution)[:, 3])
 
 
 global_epoch = 0
@@ -49,7 +54,7 @@ def plot_result(model, display=False):
     y = np.linspace(0, config["Ly"], ny)
     X, Y = np.meshgrid(x, y)
     XY = np.stack([X.flatten(), Y.flatten()], axis=-1)
-    XY_tensor = torch.tensor(XY, requires_grad=False).float()
+    XY_tensor = torch.tensor(XY, requires_grad=False)
 
     X, Y = np.meshgrid(x, y)
 
@@ -105,23 +110,25 @@ class NavierStokesModel(nn.Module):
     ):
         super(NavierStokesModel, self).__init__()
 
-        self.activation_func = ActivateFunctionController(
-            activate_func=ActivateFunctions.REAct,
-            args=(
-                a,
-                b,
-                c,
-                d,
-            ),
-        ).get()
+        self.activation_func = nn.Tanh()
+        # self.activation_func = ActivateFunctionController(
+        #     activate_func=ActivateFunctions.REAct,
+        #     args=(
+        #         a,
+        #         b,
+        #         c,
+        #         d,
+        #     ),
+        # ).get()
 
         self.fc1 = nn.Linear(2, 30)
         self.fc2 = nn.Linear(30, 30)
+        # self.fc3 = nn.Dropout(0.3)
         self.fc3 = nn.Linear(30, 30)
         self.fc4 = nn.Linear(30, 30)
         self.fc5 = nn.Linear(30, 30)
-        self.fc6 = nn.Linear(30, 30)
-        self.fc7 = nn.Linear(30, 3)
+        self.fc6 = nn.Linear(30, 3)
+        # self.fc7 = nn.Linear(30, 3)
 
     def forward(self, x):
         x = self.activation_func(self.fc1(x))
@@ -130,7 +137,7 @@ class NavierStokesModel(nn.Module):
         x = self.activation_func(self.fc4(x))
         x = self.activation_func(self.fc5(x))
         x = self.activation_func(self.fc6(x))
-        x = self.activation_func(self.fc7(x))
+        # x = self.activation_func(self.fc7(x))
         # x = self.activation_func(self.fc8(x))
         return x
 
@@ -169,22 +176,22 @@ def boundary_conditions(model):
     y = np.linspace(0, config["Ly"], num_points_y)
 
     selected_XYT_1 = np.array(
-        list(product(x[(x > 0) & (x < 1)], y[(y > 1) & (y < 3)])), dtype=np.float32
+        list(product(x[(x > 0) & (x < 1)], y[(y > 1) & (y < 3)])), dtype=np.float64
     )
     selected_XYT_2 = np.array(
-        list(product(x[(x >= 1) & (x < 2)], y[(y > 2) & (y < 3)])), dtype=np.float32
+        list(product(x[(x >= 1) & (x < 2)], y[(y > 2) & (y < 3)])), dtype=np.float64
     )
     selected_XYT_3 = np.array(
-        list(product(x[(x > 3) & (x < 20)], y[(y > 0) & (y < 2)])), dtype=np.float32
+        list(product(x[(x > 3) & (x < 20)], y[(y > 0) & (y < 2)])), dtype=np.float64
     )
 
     selected_XY_inflow = np.array(
         list(product(x[np.isclose(x, 0)], y[(y > 0) & (y < 1)])),
-        dtype=np.float32,
+        dtype=np.float64,
     )
     selected_XY_outflow = np.array(
         list(product(x[np.isclose(x, config["Lx"])], y[(y > 2) & (y < 3)])),
-        dtype=np.float32,
+        dtype=np.float64,
     )
 
     predict_1 = model(torch.tensor(selected_XYT_1))
@@ -243,7 +250,7 @@ def loss_function(model, xy):
 
     writer.add_scalar("exact_loss", exact_loss, global_epoch)
 
-    total_loss = pde_loss + exact_loss  #  + bc_loss
+    total_loss = pde_loss + exact_loss + bc_loss
 
     return total_loss
 
@@ -256,7 +263,7 @@ def generate_data(num_points):
     )
     train = exact_solution_coords[train_random_indices]
 
-    return torch.tensor(train, requires_grad=True).float()
+    return torch.tensor(train, requires_grad=True)
 
 
 g_trainset = generate_data(10000)
@@ -294,6 +301,10 @@ def train_model(config_hyperparams):
             optimizer.zero_grad()
 
             loss = loss_function(model, trainset)
+            if torch.any(loss.isnan()):
+                breakpoint()
+                loss = loss_function(model, trainset)
+
             loss.backward()
             optimizer.step()
 
@@ -302,7 +313,7 @@ def train_model(config_hyperparams):
 
     try:
         # train(optimizer_adagrad, 10000)
-        train(optimizer_adam, 10000)
+        train(optimizer_adam, 100000)
         # train(optimizer_asgd, 10000)
         # train(optimizer_rmsprop, 10000)
     except KeyboardInterrupt as e:
@@ -318,7 +329,7 @@ def main():
         "b": 1,
         "c": 1,
         "d": 1,
-        "lr": 1e-3,
+        "lr": 1e-4,
     }
 
     result = train_model(config)

@@ -1,0 +1,64 @@
+\begin{figure}[ht]
+    \caption{Структура PINN с использованием функции активации Adaptive Blending Unit\cite{a104fe01d341f235fd80ea98d6a8f35b8110df1d}}
+    \label{pinn_structure}
+    \centering
+    \resizebox{0.8\columnwidth}{!}{
+        \begin{tikzpicture}[]
+            % Цвета
+            \definecolor{inputcolor}{RGB}{173,216,230}
+            \definecolor{weightcolor}{RGB}{255,228,181}
+            \definecolor{sumcolor}{RGB}{255,182,193}
+            \definecolor{actcolor}{RGB}{144,238,144}
+            \definecolor{outputcolor}{RGB}{255,255,224}
+
+            % Входы
+            \node[draw, circle, fill=inputcolor] (x1) {$x_1$};
+            \node[draw, circle, fill=inputcolor, below=0.9cm of x1] (x2) {$x_2$};
+            \node[below=0.5cm of x2] (dots) {$\vdots$};
+            \node[draw, circle, fill=inputcolor, below=0.5cm of dots] (xn) {$x_n$};
+
+            % Веса
+            \node[draw, circle, fill=weightcolor, right=1.2cm of x1] (w1) {$w_{j1}$};
+            \node[draw, circle, fill=weightcolor, right=1.2cm of x2] (w2) {$w_{j2}$};
+            \node[draw, circle, fill=weightcolor, right=1.2cm of xn] (wn) {$w_{jn}$};
+
+            % Сумматор
+            \node[draw, circle, fill=sumcolor, right=2.2cm of w2, minimum size=1.2cm] (sum) {$\sum$};
+
+            % Функция активации
+            \node[draw, rectangle, fill=actcolor, right=2.2cm of sum, minimum width=1.2cm, minimum height=1.2cm] (phi) {$\varphi$};
+
+            % Выход
+            \node[draw, circle, fill=outputcolor, right=2.2cm of phi] (out) {$o_j$};
+
+            % Стрелки входов к весам
+            \draw[->] (x1) -- (w1);
+            \draw[->] (x2) -- (w2);
+            \draw[->] (xn) -- (wn);
+
+            % Стрелки весов к сумматору
+            \draw[->] (w1) -- (sum);
+            \draw[->] (w2) -- (sum);
+            \draw[->] (wn) -- (sum);
+
+            % Стрелка из сумматора в функцию активации
+            \draw[->] (sum) -- (phi);
+
+            % Стрелка из функции активации в выход
+            \draw[->] (phi) -- (out);
+
+            % Смещение (порог)
+            \node[above=0.5cm of phi] (theta) {$\theta_j$};
+            \draw[->, dashed] (theta) -- (phi);
+
+            % Подписи
+            \node[above=0.25cm of x1] {Входы};
+            \node[above=0.25cm of w1] {Веса};
+            \node[above=0.25cm of sum] {Сумма входов};
+            \node[below=0.25cm of phi] {Функция активации};
+            \node[above=0.25cm of out] {Выход};
+
+
+        \end{tikzpicture}       
+    }
+\end{figure}
