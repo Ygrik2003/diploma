@@ -2,40 +2,28 @@
     \caption{Постановка задачи течения Куэтта}
     \label{act_func_graph}
     \centering
-    \begin{tikzpicture}[]
+    \begin{tikzpicture}[scale=1.5]
 
-        % Размеры
-        \def\L{6}   % длина пластин
-        \def\H{2}   % расстояние между пластинами
-        
-        % Пластины
-        \draw[thick] (0,0) -- (\L,0); % нижняя пластина
-        \draw[thick] (0,\H) -- (\L,\H); % верхняя пластина
-        
-        % Подписи пластин
-        \node[below] at (\L/2,0) {Нижняя пластина (неподвижна)};
-        \node[above] at (\L/2,\H) {Верхняя пластина ($U$)};
-        
-        % Стрелка скорости верхней пластины
-        \draw[->,thick,blue] (\L*0.75,\H+0.2) -- (\L*0.75+1,\H+0.2) node[right] {$U$};
-        
-        % Жидкость между пластинами
-        \fill[blue!10] (0,0) rectangle (\L,\H);
-        
-        % Координаты
-        \draw[->] (-0.5,0) -- (-0.5,\H+0.5) node[above] {$y$};
-        \draw[->] (-0.5,0) -- (\L+0.5,0) node[right] {$x$};
-        
-        % Граничные условия
-        \draw[->,thick,red] (0.5,0.2) -- (0.5,0.8);
-        \node[right,red] at (0.5,0.5) {$u=0$};
-        
-        \draw[->,thick,red] (0.5,\H-0.2) -- (0.5,\H-0.8);
-        \node[right,red] at (0.5,\H-0.5) {$u=U$};
-        
-        % Подпись слоя жидкости
-        \node at (\L/2,\H/2) {Жидкость};
-        
-        \end{tikzpicture}
+        % Оси координат
+        \draw[->] (0,0) -- (7,0) node[below] {$x$};
+        \draw[->] (0,0) -- (0,3) node[left] {$y$};
     
+        % Пластины
+        \draw[thick] (0,0.5) -- (6.5,0.5) node[midway, below] {Нижняя пластина ($u=0$)};
+        \draw[thick] (0,2.5) -- (6.5,2.5) node[midway, above] {Верхняя пластина ($u=U_0$)};
+    
+        % Расстояние между пластинами
+        \draw[decorate, decoration={brace, amplitude=5pt, mirror}] (6.7,0.5) -- (6.7,2.5) 
+            node[midway, right=5pt] {$h$};
+    
+        % Течение Куэтта (линейный профиль скорости)
+        \foreach \y in {0.6,0.8,...,2.4} {
+            \pgfmathsetmacro{\arrowlength}{2*(\y-0.5)/2} % Вычисляем длину стрелки
+            \draw[blue, ->] (0,\y) -- (0+\arrowlength,\y); % Рисуем стрелку
+        }
+    
+        % Подписи
+        \node at (3,1.5) {$\vec{u}(y) = U_0 \frac{y}{h}$};
+        
+    \end{tikzpicture}
 \end{figure}

@@ -3,62 +3,47 @@
     \label{pinn_structure}
     \centering
     \resizebox{0.8\columnwidth}{!}{
-        \begin{tikzpicture}[]
-            % Цвета
-            \definecolor{inputcolor}{RGB}{173,216,230}
-            \definecolor{weightcolor}{RGB}{255,228,181}
-            \definecolor{sumcolor}{RGB}{255,182,193}
-            \definecolor{actcolor}{RGB}{144,238,144}
-            \definecolor{outputcolor}{RGB}{255,255,224}
+        \begin{tikzpicture}[node distance=1.2cm, thick]
 
-            % Входы
-            \node[draw, circle, fill=inputcolor] (x1) {$x_1$};
-            \node[draw, circle, fill=inputcolor, below=0.9cm of x1] (x2) {$x_2$};
-            \node[below=0.5cm of x2] (dots) {$\vdots$};
-            \node[draw, circle, fill=inputcolor, below=0.5cm of dots] (xn) {$x_n$};
-
-            % Веса
-            \node[draw, circle, fill=weightcolor, right=1.2cm of x1] (w1) {$w_{j1}$};
-            \node[draw, circle, fill=weightcolor, right=1.2cm of x2] (w2) {$w_{j2}$};
-            \node[draw, circle, fill=weightcolor, right=1.2cm of xn] (wn) {$w_{jn}$};
-
-            % Сумматор
-            \node[draw, circle, fill=sumcolor, right=2.2cm of w2, minimum size=1.2cm] (sum) {$\sum$};
-
-            % Функция активации
-            \node[draw, rectangle, fill=actcolor, right=2.2cm of sum, minimum width=1.2cm, minimum height=1.2cm] (phi) {$\varphi$};
-
-            % Выход
-            \node[draw, circle, fill=outputcolor, right=2.2cm of phi] (out) {$o_j$};
-
-            % Стрелки входов к весам
-            \draw[->] (x1) -- (w1);
-            \draw[->] (x2) -- (w2);
-            \draw[->] (xn) -- (wn);
-
-            % Стрелки весов к сумматору
-            \draw[->] (w1) -- (sum);
-            \draw[->] (w2) -- (sum);
-            \draw[->] (wn) -- (sum);
-
-            % Стрелка из сумматора в функцию активации
-            \draw[->] (sum) -- (phi);
-
-            % Стрелка из функции активации в выход
-            \draw[->] (phi) -- (out);
-
-            % Смещение (порог)
-            \node[above=0.5cm of phi] (theta) {$\theta_j$};
-            \draw[->, dashed] (theta) -- (phi);
-
-            % Подписи
-            \node[above=0.25cm of x1] {Входы};
-            \node[above=0.25cm of w1] {Веса};
-            \node[above=0.25cm of sum] {Сумма входов};
-            \node[below=0.25cm of phi] {Функция активации};
-            \node[above=0.25cm of out] {Выход};
-
-
+            % Цвета нод
+            \definecolor{inputcolor}{RGB}{255,230,230}   % светло-розовый
+            \definecolor{hiddencolor}{RGB}{200,220,255}  % светло-голубой
+            \definecolor{outputcolor}{RGB}{220,255,220}  % светло-зелёный
+            
+            % Входной слой
+            \foreach \i in {1,2,3}
+                \node[draw, circle, fill=inputcolor, minimum size=1cm] (I\i) at (0,1.8-\i*1.2) {};
+            
+            % Скрытый слой 1
+            \foreach \i in {1,2,3,4}
+                \node[draw, circle, fill=hiddencolor, minimum size=1cm] (Hone\i) at (2.5,2.4-\i*1.2) {};
+            
+            % Скрытый слой 2
+            \foreach \i in {1,2,3,4}
+                \node[draw, circle, fill=hiddencolor, minimum size=1cm] (Htwo\i) at (5.5,2.4-\i*1.2) {};
+            
+            % Выходной слой
+            \node[draw, circle, fill=outputcolor, minimum size=1cm] (O) at (8.2,-0.6) {};
+            
+            % Связи: входной -> скрытый 1
+            \foreach \i in {1,2,3}
+                \foreach \j in {1,2,3,4}
+                    \draw[->] (I\i) -- (Hone\j);
+            
+            % Связи: скрытый 1 -> скрытый 2
+            \foreach \i in {1,2,3,4}
+                \foreach \j in {1,2,3,4}
+                    \draw[->] (Hone\i) -- (Htwo\j);
+            
+            % Связи: скрытый 2 -> выходной
+            \foreach \i in {1,2,3,4}
+                \draw[->] (Htwo\i) -- (O);
+            
+            % Подписи слоёв
+            \node[align=center] at (-0.2,2.8) {Входной\\слой};
+            \node[align=center] at (2.5,2.8) {Скрытый\\слой 1};
+            \node[align=center] at (5.5,2.8) {Скрытый\\слой 2};
+            \node[align=center] at (8.2,2.8) {Выходной\\слой};
         \end{tikzpicture}       
     }
 \end{figure}

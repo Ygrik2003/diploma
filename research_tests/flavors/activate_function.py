@@ -4,7 +4,7 @@ from torch import nn, Tensor
 from enum import Enum
 from typing import Union
 
-torch.set_default_dtype(torch.float64)
+# torch.set_default_dtype(torch.float64)
 
 
 DTYPE = Union[float, nn.Parameter]
