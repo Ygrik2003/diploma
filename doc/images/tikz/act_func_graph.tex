@@ -4,37 +4,40 @@
     \centering
     \begin{tikzpicture}
         \begin{axis}[
-            width=0.9\textwidth, height=8cm,
-            xlabel={$x$},
-            ylabel={$y$},
+            width=14cm, height=10cm,
+            grid=both,
+            axis y line=middle, axis x line=middle,
+            ymin=-1.2, ymax=1.2,
             xmin=-5, xmax=5,
-            ymin=-1, ymax=5,
-            domain=-5:5,
-            samples=100,
-            % grid=both,
-            legend pos=north west,
-            legend style={draw=none, font=\small},
-            axis lines=center,
-            enlargelimits=true,
-            clip=false
+            samples=201,
+            legend style={at={(0.5,-0.1)},anchor=north,legend columns=2},
+            legend cell align={left},
+            title={Активационные функции}
         ]
         
-        % Sigmoid function
-        \addplot[blue, thick] {1 / (1 + exp(-x))};
-        \addlegendentry{$\sigma(x)$ (Sigmoid)}
+        % Пороговая функция (Heaviside, Step)
+        \addplot[thick, blue, domain=-5:5] {x >= 0 ? 1 : 0};
+        \addlegendentry{Пороговая (Heaviside)}
         
-        % ReLU function
-        \addplot[red, thick] {max(0, x)};
-        \addlegendentry{$\text{ReLU}(x)$}
+        % Сигмоида (Logistic Sigmoid)
+        \addplot[thick, red, domain=-5:5] {1/(1+exp(-x))};
+        \addlegendentry{Сигмоида (Logistic)}
         
-        % SiLU function (x * sigmoid(x))
-        \addplot[green, thick] {x / (1 + exp(-x))};
-        \addlegendentry{$\text{SiLU}(x)$}
+        % Гиперболический тангенс (tanh)
+        \addplot[thick, green!70!black, domain=-5:5] {tanh(x)};
+        \addlegendentry{Гиперб. тангенс (tanh)}
         
-        % Swish function (x * sigmoid(beta * x), beta = 1)
-        \addplot[orange, thick] {x / (1 + exp(-2 * x))};
-        \addlegendentry{$\text{Swish}_2(x)$}
+        % ReLU
+        \addplot[thick, orange, domain=-5:5] {x > 0 ? x : 0};
+        \addlegendentry{ReLU}
         
+        % Сигмоида сдвинутая (Bipolar Sigmoid)
+        \addplot[thick, magenta, domain=-5:5] {(1 - exp(-x))/(1 + exp(-x))};
+        \addlegendentry{Сигмоида сдвинутая (Bipolar)}
+        
+        % Гауссова функция
+        \addplot[thick, cyan, domain=-5:5] {exp(-x^2)};
+        \addlegendentry{Гауссова функция}
         
         \end{axis}
     \end{tikzpicture}
