@@ -18,6 +18,8 @@ from ray import tune
 from ray import train
 from ray.tune.schedulers import ASHAScheduler
 
+import logging
+
 Lx = 5.0
 Ly = 1.0
 T = 1.0
@@ -271,6 +273,9 @@ def train(config):
         xyt = generate_data(config["num_points"])
         optimizer.zero_grad()
         loss = loss_function(model, xyt, writer)
+        if torch.any(loss.isnan()):
+            logging.warning("This model go to NaN")
+            break
         loss.backward()
         optimizer.step()
 
@@ -294,20 +299,20 @@ config = {
             [64, 32, 64],
             [16, 32, 64],
             [64, 32, 16],
-            [64, 16, 64],
-            [16, 64, 16],
+            # [64, 16, 64],
+            # [16, 64, 16],
             [16, 64, 32],
             [64, 16, 32],
-            [32, 64, 16],
-            [32, 16, 64],
+            # [32, 64, 16],
+            # [32, 16, 64],
             [16, 16],
             [32, 32],
             [64, 64],
-            [128, 128],
+            # [128, 128],
         ]
     ),
-    "num_points": tune.choice([100, 000]),
-    "num_epochs": 10000,
+    "num_points": tune.choice([100, 500]),
+    "num_epochs": 8000,
     "optimizer": tune.choice([1, 2, 3, 4, 5]),
     "lr": tune.choice([1e-1, 1e-2, 1e-3]),
 }
@@ -317,9 +322,9 @@ scheduler = ASHAScheduler(metric="loss", mode="min")
 cwd = os.getcwd()
 result = tune.run(
     train,
-    resources_per_trial={"cpu": 12, "gpu": 1},
+    resources_per_trial={"cpu": 0, "gpu": 1},
     config=config,
     scheduler=scheduler,
-    num_samples=4 * 14 * 2 * 1 * 5 * 3,
+    num_samples=4 * 9 * 2 * 1 * 5 * 2,
     storage_path=f"{cwd}/checkpoints",
 )
