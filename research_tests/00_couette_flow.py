@@ -3,6 +3,8 @@ import os
 # os.environ["RAY_PICKLE_VERBOSE_DEBUG"] = "1"
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["MPLBACKEND"] = "Agg"
+os.environ["HSA_OVERRIDE_GFX_VERSION"] = "11.0.0"
+
 import torch
 import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
@@ -22,6 +24,10 @@ T = 1.0
 nu = 0.01
 
 U = 1
+
+device = "cpu"
+if torch.cuda.is_available():
+    device = "cuda:0"
 
 
 class REAct(nn.Module):
@@ -113,30 +119,48 @@ def compute_pde(model, xyt, writer):
 def boundary_conditions(model, writer):
     num_points = 1000
     t = T * np.random.random(num_points)
-    bottom_bc = torch.tensor(
-        np.stack(
-            [np.random.uniform(0, Lx, num_points), np.zeros(num_points), t], axis=-1
-        ),
-        requires_grad=False,
-    ).float()
-    left_bc = torch.tensor(
-        np.stack(
-            [np.zeros(num_points), np.random.uniform(0, Ly, num_points), t], axis=-1
-        ),
-        requires_grad=False,
-    ).float()
-    top_bc = torch.tensor(
-        np.stack(
-            [np.random.uniform(0, Lx, num_points), np.full(num_points, Ly), t], axis=-1
-        ),
-        requires_grad=False,
-    ).float()
-    right_bc = torch.tensor(
-        np.stack(
-            [np.full(num_points, Lx), np.random.uniform(0, Ly, num_points), t], axis=-1
-        ),
-        requires_grad=False,
-    ).float()
+    bottom_bc = (
+        torch.tensor(
+            np.stack(
+                [np.random.uniform(0, Lx, num_points), np.zeros(num_points), t], axis=-1
+            ),
+            requires_grad=False,
+        )
+        .float()
+        .to(device)
+    )
+    left_bc = (
+        torch.tensor(
+            np.stack(
+                [np.zeros(num_points), np.random.uniform(0, Ly, num_points), t], axis=-1
+            ),
+            requires_grad=False,
+        )
+        .float()
+        .to(device)
+    )
+    top_bc = (
+        torch.tensor(
+            np.stack(
+                [np.random.uniform(0, Lx, num_points), np.full(num_points, Ly), t],
+                axis=-1,
+            ),
+            requires_grad=False,
+        )
+        .float()
+        .to(device)
+    )
+    right_bc = (
+        torch.tensor(
+            np.stack(
+                [np.full(num_points, Lx), np.random.uniform(0, Ly, num_points), t],
+                axis=-1,
+            ),
+            requires_grad=False,
+        )
+        .float()
+        .to(device)
+    )
 
     bottom_predict = model(bottom_bc)
     left_predict = model(left_bc)
@@ -165,7 +189,7 @@ def generate_data(num_points):
     y = np.random.uniform(0, Ly, num_points)
     t = np.random.uniform(0, T, num_points)
     xyt = np.stack([x, y, t], axis=-1)
-    return torch.tensor(xyt, requires_grad=True).float()
+    return torch.tensor(xyt, requires_grad=True).float().to(device)
 
 
 def loss_function(model, xyt, writer):
@@ -188,11 +212,11 @@ def plot_flow_data(model, writer: SummaryWriter):
     t = np.linspace(0, T, nt)
     X, Y, t_grid = np.meshgrid(x, y, t)
     XYT = np.stack([X.flatten(), Y.flatten(), t_grid.flatten()], axis=-1)
-    XYT_tensor = torch.tensor(XYT, requires_grad=False).float()
+    XYT_tensor = torch.tensor(XYT, requires_grad=False).float().to(device)
 
     X, Y = np.meshgrid(x, y)
     with torch.no_grad():
-        predictions = model(XYT_tensor).numpy()
+        predictions = model(XYT_tensor).cpu().numpy()
 
     U_calc = predictions[:, 0].reshape((ny, nx, nt))
     V_calc = predictions[:, 1].reshape((ny, nx, nt))
@@ -239,6 +263,8 @@ def train(config):
         optim = torch.optim.RMSprop
 
     model = NavierStokesModel(config["neurons"], config["react_params"])
+    model.to(device)
+
     optimizer = optim(model.parameters(), lr=config["lr"])
     for epoch in range(config["num_epochs"]):
         global_epoch += 1
@@ -264,35 +290,36 @@ config = {
     ),
     "neurons": tune.choice(
         [
-            # [32, 64, 32],
-            # [64, 32, 64],
-            # [16, 32, 64],
-            # [64, 32, 16],
-            # [64, 16, 64],
-            # [16, 64, 16],
-            # [16, 64, 32],
-            # [64, 16, 32],
-            # [32, 64, 16],
-            # [32, 16, 64],
+            [32, 64, 32],
+            [64, 32, 64],
+            [16, 32, 64],
+            [64, 32, 16],
+            [64, 16, 64],
+            [16, 64, 16],
+            [16, 64, 32],
+            [64, 16, 32],
+            [32, 64, 16],
+            [32, 16, 64],
             [16, 16],
-            # [32, 32],
-            # [64, 64],
-            # [128, 128],
+            [32, 32],
+            [64, 64],
+            [128, 128],
         ]
     ),
-    "num_points": tune.choice([100, 1000]),
-    "num_epochs": 10,
+    "num_points": tune.choice([100, 000]),
+    "num_epochs": 10000,
     "optimizer": tune.choice([1, 2, 3, 4, 5]),
     "lr": tune.choice([1e-1, 1e-2, 1e-3]),
 }
 
 scheduler = ASHAScheduler(metric="loss", mode="min")
 
+cwd = os.getcwd()
 result = tune.run(
     train,
-    resources_per_trial={"cpu": 2, "gpu": 0},
+    resources_per_trial={"cpu": 12, "gpu": 1},
     config=config,
     scheduler=scheduler,
-    num_samples=4 * 1 * 2 * 1 * 5 * 3,
-    storage_path="D:/checkpoints",
+    num_samples=4 * 14 * 2 * 1 * 5 * 3,
+    storage_path=f"{cwd}/checkpoints",
 )
