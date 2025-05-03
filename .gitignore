@@ -2,3 +2,5 @@ env
 __pycache__
 .build
 .vscode
+runs/
+checkpoints/

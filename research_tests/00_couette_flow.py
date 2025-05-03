@@ -19,6 +19,8 @@ from ray.tune.schedulers import ASHAScheduler
 
 import logging
 
+from flavors.activate_function import ActivateFunctionController, ActivateFunctions
+
 Lx = 5.0
 Ly = 1.0
 T = 1.0
@@ -27,41 +29,33 @@ nu = 0.01
 U = 1
 
 device = "cpu"
-if torch.cuda.is_available():
-    device = "cuda:0"
-
-
-class REAct(nn.Module):
-    def __init__(
-        self,
-        a=1.0,
-        b=1.0,
-        c=1.0,
-        d=1.0,
-        *args,
-        **kwargs,
-    ) -> None:
-        super().__init__(*args, **kwargs)
-
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
-
-        self.acts = lambda x: (1 - torch.exp(a * x + b)) / (1 + torch.exp(c * x + d))
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-
-        out = self.acts(x)
-
-        return out
+# if torch.cuda.is_available():
+#     device = "cuda:0"
 
 
 class NavierStokesModel(nn.Module):
-    def __init__(self, neurons, react_params):
+    def __init__(
+        self,
+        neurons,
+        scale_sin,
+        scale_tanh,
+        scale_swish,
+        scale_quadratic,
+        scale_softplus,
+    ):
         super(NavierStokesModel, self).__init__()
 
-        self.activation_func = REAct(*react_params)
+        self.activation_func = ActivateFunctionController(
+            activate_func=ActivateFunctions.AdaptiveBlendingUnit,
+            args=(
+                5,
+                scale_sin,
+                scale_tanh,
+                scale_swish,
+                scale_quadratic,
+                scale_softplus,
+            ),
+        ).get()
 
         self.fc = []
 
@@ -263,7 +257,14 @@ def train(config):
     elif config["optimizer"] == 5:
         optim = torch.optim.RMSprop
 
-    model = NavierStokesModel(config["neurons"], config["react_params"])
+    model = NavierStokesModel(
+        config["neurons"],
+        config["scale_sin"],
+        config["scale_tanh"],
+        config["scale_swish"],
+        config["scale_quadratic"],
+        config["scale_softplus"],
+    )
     model.to(device)
 
     optimizer = optim(model.parameters(), lr=config["lr"])
@@ -284,57 +285,32 @@ def train(config):
 
 
 config = {
-    "react_params": tune.choice(
-        [
-            [1, -1, 0.5, 1],
-            [0.2, 1.2, 3, -1.1],
-            [0.8, -4, -3.2, 0.2],
-            [1, 1, 1, 1],
-        ]
-    ),
+    "scale_sin": 1,
+    "scale_tanh": tune.grid_search(np.linspace(0, 1, 2)),
+    "scale_swish": tune.grid_search(np.linspace(0, 1, 2)),
+    "scale_quadratic": tune.grid_search(np.linspace(0, 1, 2)),
+    "scale_softplus": tune.grid_search(np.linspace(0, 1, 2)),
     "neurons": tune.choice(
         [
             [32, 64, 32],
             [64, 32, 64],
-            [16, 32, 64],
-            [64, 32, 16],
-            # [64, 16, 64],
-            # [16, 64, 16],
-            [16, 64, 32],
-            [64, 16, 32],
-            # [32, 64, 16],
-            # [32, 16, 64],
-            [16, 16],
-            [32, 32],
             [64, 64],
-            # [128, 128],
         ]
     ),
-    "num_points": tune.choice([100, 500]),
+    "num_points": 100,
     "num_epochs": 8000,
-    "optimizer": tune.choice([1, 2, 3, 4, 5]),
-    "lr": tune.choice([1e-1, 1e-2, 1e-3]),
+    "optimizer": tune.choice([2, 4]),
+    "lr": 1e-3,
 }
 
 scheduler = ASHAScheduler(metric="loss", mode="min")
 
 cwd = os.getcwd()
-# result = tune.run(
-#     train,
-#     resources_per_trial={"cpu": 0, "gpu": 1},
-#     config=config,
-#     scheduler=scheduler,
-#     num_samples=4 * 9 * 2 * 1 * 5 * 2,
-#     storage_path=f"{cwd}/checkpoints",
-#     resume=True
-# )
-
 result = tune.run(
     train,
+    resources_per_trial={"cpu": 1, "gpu": 0},
     config=config,
-    resources_per_trial={"cpu": 24, "gpu": 0},
+    scheduler=scheduler,
+    num_samples=16 * 3 * 2,
     storage_path=f"{cwd}/checkpoints",
-    name="crashed_experiment",
-    resume=True,
-    num_samples=4 * 9 * 2 * 1 * 5 * 2,
 )
