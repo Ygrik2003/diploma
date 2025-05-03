@@ -15,7 +15,6 @@ matplotlib.use("agg")
 import matplotlib.pyplot as plt
 
 from ray import tune
-from ray import train
 from ray.tune.schedulers import ASHAScheduler
 
 import logging
@@ -320,11 +319,22 @@ config = {
 scheduler = ASHAScheduler(metric="loss", mode="min")
 
 cwd = os.getcwd()
+# result = tune.run(
+#     train,
+#     resources_per_trial={"cpu": 0, "gpu": 1},
+#     config=config,
+#     scheduler=scheduler,
+#     num_samples=4 * 9 * 2 * 1 * 5 * 2,
+#     storage_path=f"{cwd}/checkpoints",
+#     resume=True
+# )
+
 result = tune.run(
     train,
-    resources_per_trial={"cpu": 0, "gpu": 1},
     config=config,
-    scheduler=scheduler,
-    num_samples=4 * 9 * 2 * 1 * 5 * 2,
+    resources_per_trial={"cpu": 24, "gpu": 0},
     storage_path=f"{cwd}/checkpoints",
+    name="crashed_experiment",
+    resume=True,
+    num_samples=4 * 9 * 2 * 1 * 5 * 2,
 )
