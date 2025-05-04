@@ -139,7 +139,7 @@ lr=0.0100,neurons=64_32_16,num_points=500,optimizer=1,react_params=0_8_-4_-3_2_0
 lr=0.0100,neurons=64_32_16,num_points=500,optimizer=2,react_params=0_8_-4_-3_2_0_2    00014_14
 lr=0.0100,neurons=64_32_16,num_points=500,optimizer=2,react_params=0_8_-4_-3_2_0_2    00043_43
 lr=0.0100,neurons=64_32_16,num_points=500,optimizer=4,react_params=1_1_1_1            00138_138
-lr=0.0100,neurons=64_32_16,num_points=500,optimizer=5,react_params=0_8_-4_-3_2_0_2    00118_118 null
+lr=0.0100,neurons=64_32_16,num_points=500,optimizer=5,react_params=0_8_-4_-3_2_0_2    00118_118 die
 
 lr=0.0100,neurons=64_32_64,num_points=100,optimizer=2,react_params=0_8_-4_-3_2_0_2    00137_137 graph_good 0.2
 lr=0.0100,neurons=64_32_64,num_points=100,optimizer=3,react_params=1_-1_0_5_1         00106_106

@@ -1,0 +1,48 @@
+\begin{figure}[ht]
+    \caption{Функции активации на основе REAct}
+    \label{act_func_graph}
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=16cm,
+            height=10cm,
+            xmin=-4, xmax=4,
+            ymin=-3, ymax=8,
+            axis lines=middle,
+            grid=both,
+            legend style={at={(1.05,1)},anchor=north west, font=\footnotesize},
+            cycle list name=color list,
+            samples=200
+        ]
+        
+        % Функция swish(x) = x * sigmoid(x)
+        \pgfmathdeclarefunction{swish}{1}{
+          \pgfmathparse{#1/(1+exp(-#1))}
+        }
+        
+        % Функция softplus(x) = ln(1 + exp(x))
+        \pgfmathdeclarefunction{softplus}{1}{
+          \pgfmathparse{ln(1 + exp(#1))}
+        }
+        
+        % Перебор всех комбинаций (a, b, c, d)
+        \foreach \a/\b/\c/\d in {0/0/0/0, 0/0/0/1, 0/0/1/0, 0/0/1/1,
+                                 0/1/0/0, 0/1/0/1, 0/1/1/0, 0/1/1/1,
+                                 1/0/0/0, 1/0/0/1, 1/0/1/0, 1/0/1/1,
+                                 1/1/0/0, 1/1/0/1, 1/1/1/0, 1/1/1/1}
+        {
+            \addplot+[thick] 
+            ({x},
+             {sin(deg(x)) 
+              + (\a == 1 ? tanh(x) : 0)
+              + (\b == 1 ? swish(x) : 0)
+              + (\c == 1 ? 1/(1 + x^2) : 1)
+              + (\d == 1 ? softplus(x) : 0)
+             });
+            % \addlegendentry{$a=\a,\,b=\b,\,c=\c,\,d=\d$}
+        }
+        
+        \end{axis}
+    \end{tikzpicture}
+    
+\end{figure}
