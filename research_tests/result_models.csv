@@ -1,0 +1,165 @@
+lr=0.0010,neurons=16_16,num_points=100,optimizer=3,react_params=0_8_-4_-3_2_0_2       00038_38 
+lr=0.0010,neurons=16_16,num_points=100,optimizer=5,react_params=0_2_1_2_3_-1_1        00078_78  total_loss_best 0.24
+lr=0.0010,neurons=16_16,num_points=100,optimizer=5,react_params=0_2_1_2_3_-1_1        00097_97  null
+lr=0.0010,neurons=16_16,num_points=500,optimizer=1,react_params=0_2_1_2_3_-1_1        00102_102 null
+lr=0.0010,neurons=16_16,num_points=500,optimizer=1,react_params=0_8_-4_-3_2_0_2       00147_147 die
+lr=0.0010,neurons=16_16,num_points=500,optimizer=2,react_params=0_2_1_2_3_-1_1        00080_80  null
+lr=0.0010,neurons=16_16,num_points=500,optimizer=3,react_params=0_8_-4_-3_2_0_2       00051_51
+lr=0.0010,neurons=16_16,num_points=500,optimizer=3,react_params=1_-1_0_5_1            00092_92
+lr=0.0010,neurons=16_16,num_points=500,optimizer=5,react_params=1_-1_0_5_1            00086_86
+
+lr=0.0010,neurons=16_32_64,num_points=100,optimizer=1,react_params=1_-1_0_5_1         00083_83  graph_best 0.27
+lr=0.0010,neurons=16_32_64,num_points=500,optimizer=3,react_params=1_-1_0_5_1         00044_44  
+lr=0.0010,neurons=16_32_64,num_points=500,optimizer=3,react_params=1_1_1_1            00145_145 total_loss_best 0.48
+
+lr=0.0010,neurons=16_64_32,num_points=100,optimizer=2,react_params=0_8_-4_-3_2_0_2    00033_33  graph_best 0.176
+lr=0.0010,neurons=16_64_32,num_points=500,optimizer=1,react_params=0_2_1_2_3_-1_1     00077_77  null
+lr=0.0010,neurons=16_64_32,num_points=500,optimizer=1,react_params=0_2_1_2_3_-1_1     00129_129 null
+lr=0.0010,neurons=16_64_32,num_points=500,optimizer=1,react_params=1_1_1_1            00101_101
+lr=0.0010,neurons=16_64_32,num_points=500,optimizer=2,react_params=1_1_1_1            00140_140 very_bad
+lr=0.0010,neurons=16_64_32,num_points=500,optimizer=3,react_params=0_2_1_2_3_-1_1     00006_6   null
+lr=0.0010,neurons=16_64_32,num_points=500,optimizer=3,react_params=1_1_1_1            00053_53
+
+lr=0.0010,neurons=32_32,num_points=100,optimizer=1,react_params=1_-1_0_5_1            00057_57
+lr=0.0010,neurons=32_32,num_points=100,optimizer=3,react_params=0_8_-4_-3_2_0_2       00026_26
+lr=0.0010,neurons=32_32,num_points=100,optimizer=3,react_params=0_8_-4_-3_2_0_2       00132_132
+lr=0.0010,neurons=32_32,num_points=500,optimizer=2,react_params=0_8_-4_-3_2_0_2       00094_94
+lr=0.0010,neurons=32_32,num_points=500,optimizer=3,react_params=0_8_-4_-3_2_0_2       00127_127
+lr=0.0010,neurons=32_32,num_points=500,optimizer=3,react_params=1_1_1_1               00007_7   bad_graph
+lr=0.0010,neurons=32_32,num_points=500,optimizer=5,react_params=1_1_1_1               00029_29
+
+lr=0.0010,neurons=32_64_32,num_points=100,optimizer=2,react_params=0_2_1_2_3_-1_1     00095_95  null
+lr=0.0010,neurons=32_64_32,num_points=100,optimizer=2,react_params=1_-1_0_5_1         00122_122
+lr=0.0010,neurons=32_64_32,num_points=100,optimizer=5,react_params=1_1_1_1            00019_19
+lr=0.0010,neurons=32_64_32,num_points=100,optimizer=5,react_params=1_1_1_1            00117_117
+lr=0.0010,neurons=32_64_32,num_points=500,optimizer=3,react_params=0_2_1_2_3_-1_1     00130_130 null
+
+lr=0.0010,neurons=64_16_32,num_points=100,optimizer=1,react_params=0_2_1_2_3_-1_1     00018_18
+lr=0.0010,neurons=64_16_32,num_points=100,optimizer=2,react_params=0_8_-4_-3_2_0_2    00089_89  graph_best 0.1375
+lr=0.0010,neurons=64_16_32,num_points=100,optimizer=3,react_params=0_8_-4_-3_2_0_2    00085_85
+lr=0.0010,neurons=64_16_32,num_points=100,optimizer=4,react_params=1_-1_0_5_1         00104_104 very_bad
+lr=0.0010,neurons=64_16_32,num_points=500,optimizer=1,react_params=0_2_1_2_3_-1_1     00036_36  null
+lr=0.0010,neurons=64_16_32,num_points=500,optimizer=1,react_params=0_2_1_2_3_-1_1     00055_55  null
+lr=0.0010,neurons=64_16_32,num_points=500,optimizer=3,react_params=1_1_1_1            00039_39
+lr=0.0010,neurons=64_16_32,num_points=500,optimizer=5,react_params=0_2_1_2_3_-1_1     00017_17  null
+
+lr=0.0010,neurons=64_32_16,num_points=100,optimizer=1,react_params=0_8_-4_-3_2_0_2    00143_143
+lr=0.0010,neurons=64_32_16,num_points=100,optimizer=3,react_params=1_-1_0_5_1         00030_30
+lr=0.0010,neurons=64_32_16,num_points=100,optimizer=3,react_params=1_1_1_1            00096_96  graph_bad
+lr=0.0010,neurons=64_32_16,num_points=100,optimizer=4,react_params=1_1_1_1            00049_49  graph_bad
+lr=0.0010,neurons=64_32_16,num_points=100,optimizer=5,react_params=1_-1_0_5_1         00050_50
+lr=0.0010,neurons=64_32_16,num_points=500,optimizer=1,react_params=1_1_1_1            00028_28  graph_bad
+lr=0.0010,neurons=64_32_16,num_points=500,optimizer=2,react_params=0_8_-4_-3_2_0_2    00128_128
+lr=0.0010,neurons=64_32_16,num_points=500,optimizer=2,react_params=0_8_-4_-3_2_0_2    00146_146 graph_best 0.212
+lr=0.0010,neurons=64_32_16,num_points=500,optimizer=3,react_params=0_8_-4_-3_2_0_2    00116_116
+lr=0.0010,neurons=64_32_16,num_points=500,optimizer=4,react_params=1_1_1_1            00107_107
+lr=0.0010,neurons=64_32_16,num_points=500,optimizer=5,react_params=0_2_1_2_3_-1_1     00009_9   null
+
+lr=0.0010,neurons=64_32_64,num_points=100,optimizer=1,react_params=0_2_1_2_3_-1_1     00125_125 null
+lr=0.0010,neurons=64_32_64,num_points=100,optimizer=1,react_params=1_1_1_1            00084_84  graph_bad
+lr=0.0010,neurons=64_32_64,num_points=100,optimizer=2,react_params=1_1_1_1            00048_48  graph_best 0.18
+lr=0.0010,neurons=64_32_64,num_points=100,optimizer=3,react_params=0_2_1_2_3_-1_1     00027_27  null
+lr=0.0010,neurons=64_32_64,num_points=100,optimizer=3,react_params=0_2_1_2_3_-1_1     00124_124 null
+lr=0.0010,neurons=64_32_64,num_points=100,optimizer=3,react_params=1_1_1_1            00067_67  graph_bad
+lr=0.0010,neurons=64_32_64,num_points=500,optimizer=1,react_params=0_8_-4_-3_2_0_2    00064_64
+lr=0.0010,neurons=64_32_64,num_points=500,optimizer=3,react_params=1_-1_0_5_1         00015_15
+lr=0.0010,neurons=64_32_64,num_points=500,optimizer=4,react_params=0_2_1_2_3_-1_1     00023_23  null
+
+lr=0.0010,neurons=64_64,num_points=100,optimizer=1,react_params=1_-1_0_5_1            00063_63
+lr=0.0010,neurons=64_64,num_points=100,optimizer=2,react_params=1_1_1_1               00134_134 graph_good 0.18
+lr=0.0010,neurons=64_64,num_points=100,optimizer=3,react_params=0_2_1_2_3_-1_1        00108_108
+lr=0.0010,neurons=64_64,num_points=100,optimizer=5,react_params=0_8_-4_-3_2_0_2       00066_66
+lr=0.0010,neurons=64_64,num_points=500,optimizer=1,react_params=1_-1_0_5_1            00062_62
+lr=0.0010,neurons=64_64,num_points=500,optimizer=4,react_params=0_8_-4_-3_2_0_2       00069_69  graph_best 0.152
+lr=0.0010,neurons=64_64,num_points=500,optimizer=4,react_params=1_1_1_1               00105_105
+
+lr=0.0100,neurons=16_16,num_points=100,optimizer=4,react_params=1_-1_0_5_1            00024_24  graph_bad
+lr=0.0100,neurons=16_16,num_points=100,optimizer=5,react_params=0_2_1_2_3_-1_1        00081_81  null
+lr=0.0100,neurons=16_16,num_points=100,optimizer=5,react_params=1_1_1_1               00058_58
+lr=0.0100,neurons=16_16,num_points=500,optimizer=1,react_params=0_8_-4_-3_2_0_2       00068_68
+lr=0.0100,neurons=16_16,num_points=500,optimizer=2,react_params=0_8_-4_-3_2_0_2       00074_74
+lr=0.0100,neurons=16_16,num_points=500,optimizer=3,react_params=0_2_1_2_3_-1_1        00016_16  null
+lr=0.0100,neurons=16_16,num_points=500,optimizer=3,react_params=1_-1_0_5_1            00065_65
+lr=0.0100,neurons=16_16,num_points=500,optimizer=4,react_params=0_8_-4_-3_2_0_2       00136_136
+lr=0.0100,neurons=16_16,num_points=500,optimizer=5,react_params=1_1_1_1               00093_93
+
+lr=0.0100,neurons=16_32_64,num_points=100,optimizer=3,react_params=0_2_1_2_3_-1_1     00011_11  null
+lr=0.0100,neurons=16_32_64,num_points=100,optimizer=3,react_params=1_-1_0_5_1         00071_71
+lr=0.0100,neurons=16_32_64,num_points=500,optimizer=1,react_params=0_8_-4_-3_2_0_2    00103_103
+lr=0.0100,neurons=16_32_64,num_points=500,optimizer=1,react_params=1_-1_0_5_1         00052_52
+lr=0.0100,neurons=16_32_64,num_points=500,optimizer=3,react_params=1_1_1_1            00054_54  graph_bad
+lr=0.0100,neurons=16_32_64,num_points=500,optimizer=4,react_params=1_1_1_1            00091_91
+lr=0.0100,neurons=16_32_64,num_points=500,optimizer=5,react_params=1_-1_0_5_1         00141_141
+
+lr=0.0100,neurons=16_64_32,num_points=100,optimizer=1,react_params=1_1_1_1            00075_75
+lr=0.0100,neurons=16_64_32,num_points=100,optimizer=2,react_params=1_-1_0_5_1         00032_32  graph_best 0.16
+lr=0.0100,neurons=16_64_32,num_points=100,optimizer=2,react_params=1_1_1_1            00139_139 graph_bad
+lr=0.0100,neurons=16_64_32,num_points=500,optimizer=1,react_params=0_8_-4_-3_2_0_2    00059_59
+lr=0.0100,neurons=16_64_32,num_points=500,optimizer=2,react_params=0_2_1_2_3_-1_1     00113_113 graph_good 0.18
+lr=0.0100,neurons=16_64_32,num_points=500,optimizer=3,react_params=0_2_1_2_3_-1_1     00004_4   null
+lr=0.0100,neurons=16_64_32,num_points=500,optimizer=4,react_params=1_-1_0_5_1         00021_21  graph_bad
+
+lr=0.0100,neurons=32_32,num_points=100,optimizer=1,react_params=0_2_1_2_3_-1_1        00060_60
+lr=0.0100,neurons=32_32,num_points=100,optimizer=1,react_params=0_8_-4_-3_2_0_2       00123_123
+lr=0.0100,neurons=32_32,num_points=100,optimizer=1,react_params=1_1_1_1               00035_35
+lr=0.0100,neurons=32_32,num_points=100,optimizer=2,react_params=1_-1_0_5_1            00087_87  graph_best 0.16
+lr=0.0100,neurons=32_32,num_points=100,optimizer=5,react_params=0_2_1_2_3_-1_1        00022_22  null
+lr=0.0100,neurons=32_32,num_points=100,optimizer=5,react_params=1_1_1_1               00070_70
+lr=0.0100,neurons=32_32,num_points=500,optimizer=2,react_params=0_2_1_2_3_-1_1        00046_46  null
+lr=0.0100,neurons=32_32,num_points=500,optimizer=2,react_params=1_-1_0_5_1            00144_144 graph_good 0.16
+lr=0.0100,neurons=32_32,num_points=500,optimizer=2,react_params=1_1_1_1               00090_90
+lr=0.0100,neurons=32_32,num_points=500,optimizer=2,react_params=1_1_1_1               00120_120
+lr=0.0100,neurons=32_32,num_points=500,optimizer=4,react_params=0_8_-4_-3_2_0_2       00098_98  graph_good 0.16
+
+lr=0.0100,neurons=32_64_32,num_points=100,optimizer=1,react_params=1_-1_0_5_1         00045_45
+lr=0.0100,neurons=32_64_32,num_points=100,optimizer=2,react_params=0_8_-4_-3_2_0_2    00025_25
+lr=0.0100,neurons=32_64_32,num_points=100,optimizer=4,react_params=1_-1_0_5_1         00135_135 graph_bad
+lr=0.0100,neurons=32_64_32,num_points=100,optimizer=5,react_params=0_2_1_2_3_-1_1     00010_10  null
+lr=0.0100,neurons=32_64_32,num_points=100,optimizer=5,react_params=1_-1_0_5_1         00073_73
+lr=0.0100,neurons=32_64_32,num_points=500,optimizer=1,react_params=0_2_1_2_3_-1_1     00082_82
+lr=0.0100,neurons=32_64_32,num_points=500,optimizer=1,react_params=1_-1_0_5_1         00000_0
+lr=0.0100,neurons=32_64_32,num_points=500,optimizer=2,react_params=0_2_1_2_3_-1_1     00119_119 null
+lr=0.0100,neurons=32_64_32,num_points=500,optimizer=4,react_params=0_8_-4_-3_2_0_2    00099_99  graph_best 0.192
+lr=0.0100,neurons=32_64_32,num_points=500,optimizer=4,react_params=1_-1_0_5_1         00040_40  graph_bad
+lr=0.0100,neurons=32_64_32,num_points=500,optimizer=5,react_params=0_8_-4_-3_2_0_2    00056_56  graph_bad
+lr=0.0100,neurons=32_64_32,num_points=500,optimizer=5,react_params=1_1_1_1            00002_2
+
+lr=0.0100,neurons=64_16_32,num_points=100,optimizer=2,react_params=0_8_-4_-3_2_0_2    00072_72
+lr=0.0100,neurons=64_16_32,num_points=100,optimizer=2,react_params=0_8_-4_-3_2_0_2    00115_115
+lr=0.0100,neurons=64_16_32,num_points=100,optimizer=3,react_params=0_8_-4_-3_2_0_2    00111_111
+lr=0.0100,neurons=64_16_32,num_points=100,optimizer=3,react_params=1_1_1_1            00142_142 graph_bad
+lr=0.0100,neurons=64_16_32,num_points=100,optimizer=4,react_params=0_2_1_2_3_-1_1     00001_1   null
+lr=0.0100,neurons=64_16_32,num_points=100,optimizer=4,react_params=0_2_1_2_3_-1_1     00008_8
+lr=0.0100,neurons=64_16_32,num_points=100,optimizer=5,react_params=1_-1_0_5_1         00112_112 die
+lr=0.0100,neurons=64_16_32,num_points=500,optimizer=2,react_params=0_2_1_2_3_-1_1     00003_3   null
+lr=0.0100,neurons=64_16_32,num_points=500,optimizer=2,react_params=0_2_1_2_3_-1_1     00110_110 null
+lr=0.0100,neurons=64_16_32,num_points=500,optimizer=5,react_params=1_-1_0_5_1         00042_42  die
+
+lr=0.0100,neurons=64_32_16,num_points=500,optimizer=1,react_params=0_8_-4_-3_2_0_2    00041_41
+lr=0.0100,neurons=64_32_16,num_points=500,optimizer=2,react_params=0_8_-4_-3_2_0_2    00014_14
+lr=0.0100,neurons=64_32_16,num_points=500,optimizer=2,react_params=0_8_-4_-3_2_0_2    00043_43
+lr=0.0100,neurons=64_32_16,num_points=500,optimizer=4,react_params=1_1_1_1            00138_138
+lr=0.0100,neurons=64_32_16,num_points=500,optimizer=5,react_params=0_8_-4_-3_2_0_2    00118_118 null
+
+lr=0.0100,neurons=64_32_64,num_points=100,optimizer=2,react_params=0_8_-4_-3_2_0_2    00137_137 graph_good 0.2
+lr=0.0100,neurons=64_32_64,num_points=100,optimizer=3,react_params=1_-1_0_5_1         00106_106
+lr=0.0100,neurons=64_32_64,num_points=100,optimizer=4,react_params=1_1_1_1            00121_121
+lr=0.0100,neurons=64_32_64,num_points=100,optimizer=5,react_params=1_-1_0_5_1         00047_47  graph_best 0.18
+lr=0.0100,neurons=64_32_64,num_points=100,optimizer=5,react_params=1_1_1_1            00131_131 graph_good 0.196
+lr=0.0100,neurons=64_32_64,num_points=500,optimizer=1,react_params=0_2_1_2_3_-1_1     00034_34
+lr=0.0100,neurons=64_32_64,num_points=500,optimizer=1,react_params=0_2_1_2_3_-1_1     00114_114 null
+lr=0.0100,neurons=64_32_64,num_points=500,optimizer=2,react_params=0_8_-4_-3_2_0_2    00031_31
+lr=0.0100,neurons=64_32_64,num_points=500,optimizer=2,react_params=1_1_1_1            00109_109 graph_bad
+lr=0.0100,neurons=64_32_64,num_points=500,optimizer=3,react_params=1_-1_0_5_1         00133_133
+lr=0.0100,neurons=64_32_64,num_points=500,optimizer=4,react_params=0_2_1_2_3_-1_1     00126_126 null
+
+lr=0.0100,neurons=64_64,num_points=100,optimizer=1,react_params=1_-1_0_5_1            00088_88
+lr=0.0100,neurons=64_64,num_points=100,optimizer=2,react_params=0_8_-4_-3_2_0_2       00020_20  graph_good 0.2
+lr=0.0100,neurons=64_64,num_points=100,optimizer=2,react_params=1_-1_0_5_1            00013_13
+lr=0.0100,neurons=64_64,num_points=100,optimizer=4,react_params=1_-1_0_5_1            00037_37
+lr=0.0100,neurons=64_64,num_points=100,optimizer=4,react_params=1_1_1_1               00005_5
+lr=0.0100,neurons=64_64,num_points=100,optimizer=4,react_params=1_1_1_1               00012_12
+lr=0.0100,neurons=64_64,num_points=100,optimizer=4,react_params=1_1_1_1               00061_61
+lr=0.0100,neurons=64_64,num_points=500,optimizer=1,react_params=1_-1_0_5_1            00079_79
+lr=0.0100,neurons=64_64,num_points=500,optimizer=2,react_params=0_2_1_2_3_-1_1        00100_100 null
+lr=0.0100,neurons=64_64,num_points=500,optimizer=4,react_params=0_2_1_2_3_-1_1        00076_76

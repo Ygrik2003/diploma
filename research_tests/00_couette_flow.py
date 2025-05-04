@@ -290,16 +290,17 @@ config = {
     "scale_swish": tune.grid_search(np.linspace(0, 1, 2)),
     "scale_quadratic": tune.grid_search(np.linspace(0, 1, 2)),
     "scale_softplus": tune.grid_search(np.linspace(0, 1, 2)),
-    "neurons": tune.choice(
+    "neurons": tune.grid_search(
         [
             [32, 64, 32],
             [64, 32, 64],
             [64, 64],
+            [128, 128],
         ]
     ),
     "num_points": 100,
     "num_epochs": 8000,
-    "optimizer": tune.choice([2, 4]),
+    "optimizer": tune.grid_search([1, 2, 4]),
     "lr": 1e-3,
 }
 
@@ -311,6 +312,6 @@ result = tune.run(
     resources_per_trial={"cpu": 1, "gpu": 0},
     config=config,
     scheduler=scheduler,
-    num_samples=16 * 3 * 2,
+    num_samples=1,
     storage_path=f"{cwd}/checkpoints",
 )
