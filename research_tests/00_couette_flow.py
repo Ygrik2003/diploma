@@ -312,6 +312,6 @@ result = tune.run(
     resources_per_trial={"cpu": 1, "gpu": 0},
     config=config,
     scheduler=scheduler,
-    num_samples=1,
+    num_samples=4,
     storage_path=f"{cwd}/checkpoints",
 )

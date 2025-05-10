@@ -1,0 +1,3 @@
+artifacts\2025-05-04_17-43-06\train_2025-05-04_17-43-06\working_dirs\train_17384_00171_171_neurons=128_128,optimizer=1,scale_quadratic=0.0000,scale_softplus=1.0000,scale_swish=1.0000,scale_tanh=1.000_2025-05-04_17-43-07\runs\May04_20-51-30_YGPC
+на 2000 эпохе максимальное отклонение 2.88%
+на 7901 эпохе -- 4.5%

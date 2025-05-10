@@ -20,7 +20,7 @@
         \coordinate (nn_top_left) at (-8,4);
         \coordinate (nn_bottom_right) at (1,-4);
         \node[box, fit={(nn_top_left) (nn_bottom_right)}] (nn) {};
-        \node[above] at (nn.north) {\Large \textbf{NN}$(w, \boldsymbol{b}, \boldsymbol{a})$};
+        \node[above] at (nn.north) {\Large \textbf{NN}$(w, \boldsymbol{a})$};
 
         % Input layer
         \node[input] (x) at (-7,1) {$\boldsymbol{x}$};
@@ -38,7 +38,7 @@
         \node[neuron] (h24) at (-2,-3) {$\sigma(a_4^2)$};
 
         % Output
-        \node[output] (u) at (0,0) {$u$};
+        \node[output] (u) at (0,0) {$y$};
 
         % Connect input to first hidden layer
         \draw[arrow] (x) -- (h11);
@@ -65,13 +65,13 @@
         \coordinate (pde_top_left) at (2,4);
         \coordinate (pde_bottom_right) at (9,-4);
         \node[box, fit={(pde_top_left) (pde_bottom_right)}] (pde) {};
-        \node[above] at (pde.north) {\Large PDE$(\lambda)$};
+        \node[above] at (pde.north) {\Large \textbf{PDE}$(y)$};
 
         \node[pde] (f) at (3,2) {$f(\cdot)$};
         \node[pde] (dt) at (3,0) {$\partial$};
         \node[pde] (nabla) at (3,-2) {$\nabla \cdot$};
 
-        \node[operation] (residual) at (6,0) {$\mathcal{F}:= f(u, x_i, \frac{\partial{u}}{\partial{x_i}}, \frac{\partial^2{u}}{\partial{x_i^2}})$};
+        \node[operation] (residual) at (6.2,0) {$\mathcal{F}:= f(u, x_i, \frac{\partial{u}}{\partial{x_i}}, \frac{\partial^2{u}}{\partial{x_i^2}})$};
 
         % Connect PDE components
         \draw[arrow] (u) -- (f);
@@ -85,26 +85,26 @@
         \node[loss] (loss) at (1,-6) {Loss};
 
         % Adaptive parameter node
-        \node[circle, draw, fill=purple!70, minimum size=0.8cm] (adapt) at (-1,-5) {$a_i^k$};
+        \node[circle, draw, fill=purple!70, minimum size=0.8cm] (adapt) at (-1,-6) {$a_i^k$};
 
         % Decision diamond
         \node[decision] (decision) at (-5,-7) {$< \epsilon$};
 
         % Final state
-        \node (done) at (-5,-10) {Done};
+        \node (done) at (-5,-10) {Успех};
 
         % Connect other components
         \draw[arrow] (u) to[out=-90, in=45] (loss);
         \draw[arrow] (residual) to[out=-90, in=0] (loss);
         \draw[arrow] (loss) to[out=-135, in=0] (decision);
         \draw[arrow] (decision) -- node[left] {Y} (done);
-        \draw[arrow] (adapt) to[out=-90, in=180] (loss);
+        \draw[arrow] (loss) to[out=180, in=0] (adapt);
         % \draw[arrow] (loss) -- (decision);
 
         % \draw[arrow] (adapt) -- node[above] (loss);
         % \draw[arrow] (nn) -- node[above] (adapt);
 
-        \draw[arrow] (nn.south) to[out=-90, in=180] (adapt);
+        \draw[arrow] (adapt) to[out=180, in=-90] (nn.south);
         \draw[arrow] (decision) to[out=90, in=-90] ($(nn.south) - (1.5,0)$);
 
         \end{tikzpicture}       
