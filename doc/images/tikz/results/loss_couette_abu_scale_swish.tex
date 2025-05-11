@@ -1,0 +1,177 @@
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                ymode=log,
+                % xlabel={Эпоха},
+                ylabel={Медиана},
+                xmin=0,
+                xtick distance=4000,
+                axis lines=left,
+                grid=both,
+                title={Нижняя граница},
+                width=\textwidth
+            ]
+            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_scale_swish_0.0.csv};
+            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_scale_swish_1.0.csv};
+            \end{axis}
+        \end{tikzpicture}
+        \label{fig:bc_bottom}
+    \end{subfigure}
+    \hspace{0.5cm}
+    \begin{subfigure}[b]{0.4\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                ymode=log,
+                % xlabel={Эпоха},
+                % ylabel={Медиана},
+                xmin=0,
+                xtick distance=4000,
+                axis lines=left,
+                grid=both,
+                title={Верхняя граница},
+                width=\textwidth
+            ]
+            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_scale_swish_0.0.csv};
+            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_scale_swish_1.0.csv};
+            \end{axis}
+        \end{tikzpicture}
+        \label{fig:bc_top}
+    \end{subfigure}
+    \vspace{0.05cm}
+    \begin{subfigure}[b]{0.4\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                ymode=log,
+                xlabel={Эпоха},
+                ylabel={Медиана},
+                xmin=0,
+                xtick distance=4000,
+                axis lines=left,
+                grid=both,
+                title={Левая граница},
+                width=\textwidth
+            ]
+            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_scale_swish_0.0.csv};
+            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_scale_swish_1.0.csv};
+            \end{axis}
+        \end{tikzpicture}
+        \label{fig:bc_left}
+    \end{subfigure}
+    \hspace{0.5cm}
+    \begin{subfigure}[b]{0.4\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                ymode=log,
+                xlabel={Эпоха},
+                % ylabel={Медиана},
+                xmin=0,
+                xtick distance=4000,
+                axis lines=left,
+                grid=both,
+                title={Правая граница},
+                width=\textwidth
+            ]
+            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_scale_swish_0.0.csv};
+            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_scale_swish_1.0.csv};
+            \end{axis}
+        \end{tikzpicture}
+        \label{fig:bc_right}
+    \end{subfigure}
+    \caption{Зависимость медианы функции потерь на каждой эпохе при разной конфигурации нейронной сети}
+    \label{fig:bc_loss_scale_swish}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                ymode=log,
+                ymin=1e-4, ymax=1e-2,
+                xlabel={Эпоха},
+                ylabel={Медиана},
+                xmin=0,
+                xtick distance=4000,
+                axis lines=left,
+                grid=both,
+                title={Уравнение для $v_x$},
+                width=\textwidth
+            ]
+            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_scale_swish_0.0.csv};
+            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_scale_swish_1.0.csv};
+            \end{axis}
+        \end{tikzpicture}
+    \end{subfigure}
+    \hspace{0.5cm}
+    \begin{subfigure}[b]{0.4\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                ymode=log,
+                ymin=1e-4, ymax=1e-2,
+                xlabel={Эпоха},
+                % ylabel={Медиана},
+                xmin=0,
+                xtick distance=4000,
+                axis lines=left,
+                grid=both,
+                title={Уравнение для $v_y$},
+                width=\textwidth
+            ]
+            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_scale_swish_0.0.csv};
+            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_scale_swish_1.0.csv};
+            \end{axis}
+        \end{tikzpicture}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                ymode=log,
+                ymin=1e-4, ymax=1e-2,
+                xlabel={Эпоха},
+                ylabel={Медиана},
+                xmin=0,
+                xtick distance=1000,
+                axis lines=left,
+                grid=both,
+                title={Уравнение непрерывности},
+                width=\textwidth
+            ]
+            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_scale_swish_0.0.csv};
+            % \addlegendentry{(32, 64, 32)}
+            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_scale_swish_1.0.csv};
+            % \addlegendentry{(64, 32, 64)}
+        \end{axis}
+        \end{tikzpicture}
+    \end{subfigure}
+    \caption{Функция потерь для уравнений Навье-Стокса \eqref{eq:navier_stockes} при разной конфигурации нейронной сети}
+    \label{fig:pde_loss_scale_swish}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=0.8\textwidth,
+            ymode=log,
+            xlabel={Эпоха},
+            ylabel={Медиана},
+            xmin=0,
+            xtick distance=1000,
+            axis lines=left,
+            grid=both,
+        ]
+            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/total_loss_scale_swish_0.0.csv};
+            \addlegendentry{0.0}
+            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/total_loss_scale_swish_1.0.csv};
+            \addlegendentry{1.0}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Итоговая функция потерь при разной конфигурации нейронной сети}
+    \label{fig:total_loss_scale_swish}
+\end{figure}
