@@ -1,0 +1,23 @@
+\begin{figure}[ht]
+    \caption{}
+    \label{couette_loss_graph}
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            ymode=log,
+            width=14cm,
+            height=8cm,
+            xlabel={$x$},
+            ylabel={$y$},
+            xmin=0,
+            axis lines=middle,
+            grid=both,
+            legend style={at={(1.05,1)},anchor=north west}
+        ]
+        
+        \addplot+[mark=*, mark size=1pt, thick, blue] table[x=Step, y=Value, col sep=comma]{data/couette_react_loss.csv};
+        
+        \end{axis}
+    \end{tikzpicture}
+    
+\end{figure}
