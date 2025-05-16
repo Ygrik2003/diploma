@@ -2,9 +2,7 @@
 
 \begin{figure}[ht]
     \centering
-    \label{fig:bc_loss_neurons}
     \begin{subfigure}[b]{0.4\textwidth}
-        \label{fig:bc_bottom_neurons}
         \begin{tikzpicture}[scale=0.85]
             \begin{axis}[
                 ymode=log,
@@ -25,10 +23,10 @@
         \end{axis}
         \end{tikzpicture}
         \caption{Нижняя граница}
+        \label{fig:bc_bottom_neurons}
     \end{subfigure}
     \hspace{0.5cm}
     \begin{subfigure}[b]{0.4\textwidth}
-        \label{fig:bc_top_neurons}
         \begin{tikzpicture}[scale=0.85]
             \begin{axis}[
                 ymode=log,
@@ -49,9 +47,9 @@
         \end{axis}
         \end{tikzpicture}
         \caption{Верхняя граница}
+        \label{fig:bc_top_neurons}
     \end{subfigure}
     \begin{subfigure}[b]{0.4\textwidth}
-        \label{fig:bc_left_neurons}
         \begin{tikzpicture}[scale=0.85]
             \begin{axis}[
                 ymode=log,
@@ -72,10 +70,10 @@
         \end{axis}
         \end{tikzpicture}
         \caption{Левая граница}
+        \label{fig:bc_left_neurons}
     \end{subfigure}
     \hspace{0.5cm}
     \begin{subfigure}[b]{0.4\textwidth}
-        \label{fig:bc_right_neurons}
         \begin{tikzpicture}[scale=0.85]
             \begin{axis}[
                 ymode=log,
@@ -96,8 +94,10 @@
         \end{axis}
         \end{tikzpicture}
         \caption{Правая граница}
+        \label{fig:bc_right_neurons}
     \end{subfigure}
     \caption{Зависимость медианы функции потерь на каждой эпохе при разной конфигурации нейронной сети}
+    \label{fig:bc_loss_neurons}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -126,7 +126,8 @@
             \addlegendentry{(128, 128)}
         \end{axis}
         \end{tikzpicture}
-        \caption{Уравнение для $v_x$}
+        \caption{Уравнение для $u_x$}
+        \label{fig:pde_ux_neurons}
     \end{subfigure}
     \hspace{0.5cm}
     \begin{subfigure}[b]{0.4\textwidth}
@@ -151,7 +152,8 @@
             \addlegendentry{(128, 128)}
         \end{axis}
         \end{tikzpicture}
-        \caption{Уравнение для $v_y$}
+        \caption{Уравнение для $u_y$}
+        \label{fig:pde_uy_neurons}
     \end{subfigure}
     \begin{subfigure}[b]{0.8\textwidth}
         \centering
@@ -177,6 +179,7 @@
         \end{axis}
         \end{tikzpicture}
         \caption{Уравнение непрерывности}
+        \label{fig:pde_continuity_neurons}
     \end{subfigure}
     \caption{Функция потерь для уравнений Навье-Стокса \eqref{eq:navier_stockes} при разной конфигурации нейронной сети}
     \label{fig:pde_loss_neurons}
