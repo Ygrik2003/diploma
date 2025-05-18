@@ -1,163 +1,217 @@
+\section{Зависимость от оптимизатора}
+
+С точки зрения оптимизатора никаких ограничений на поведение
+модели нет. От выбора оптимизатора зависит на сколько сложно
+модели будет выбраться из локального минимума и приблизиться
+к глобальному.
+
+Рассмотрим верхнюю границу (рис \ref{fig:bc_top_optimizer}).
+Исходя из графика, при использовании оптимизатора ASGD
+функция потерь в среднем стремится к $~0.25$. При такой 
+функции потерь максимальное отклонение от точного решения
+может достигать $50\%$, если не учитывать полностью
+нулевые решения. Сам по себе ASGD является мощным оптимизатором,
+но требует тонкой настройки своих параметров, поэтому он
+показывает худший результат в данной задаче.
+
+Похожая ситуация с Adagrad оптимизатором, без качественной
+настройки параметров скорость обучения адаптивно уменьшается
+и оптимизатор застывает в локальном минимуме. Вероятнее всего
+при большем числе эпох Adagrad сможет догнать Adam, но нас
+данный вариант не устраивает.
+
+Оптимизатор Adam показывает лучший результат. Данный оптимизатор
+включает в себя преймущества двух предыдущих и является универсальным,
+поэтому не требует такой же точной настройки параметров.
+
 \begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.4\textwidth}
-        \begin{tikzpicture}
+        \begin{tikzpicture}[scale=0.85]
             \begin{axis}[
                 ymode=log,
-                % xlabel={Эпоха},
-                ylabel={Медиана},
+                legend style={font=\tiny},
                 xmin=0,
                 xtick distance=4000,
                 axis lines=left,
-                grid=both,
-                title={Нижняя граница},
-                width=\textwidth
-            ]
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_optimizer_1.csv};
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_optimizer_2.csv};
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_optimizer_4.csv};
+                grid=both
+            ]            
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_optimizer_1.csv};
+                \addlegendentry{Adam}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_optimizer_2.csv};
+                \addlegendentry{Adagrad}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_optimizer_4.csv};
+                \addlegendentry{ASGD}
             \end{axis}
         \end{tikzpicture}
-        \label{fig:bc_bottom}
+        \caption{Нижняя граница}
+        \label{fig:bc_bottom_optimizer}
     \end{subfigure}
     \hspace{0.5cm}
     \begin{subfigure}[b]{0.4\textwidth}
-        \begin{tikzpicture}
+        \begin{tikzpicture}[scale=0.85]
             \begin{axis}[
                 ymode=log,
-                % xlabel={Эпоха},
-                % ylabel={Медиана},
+                legend style={font=\tiny},
                 xmin=0,
                 xtick distance=4000,
                 axis lines=left,
-                grid=both,
-                title={Верхняя граница},
-                width=\textwidth
+                grid=both
             ]
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_optimizer_1.csv};
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_optimizer_2.csv};
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_optimizer_4.csv};
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_optimizer_1.csv};
+                \addlegendentry{Adam}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_optimizer_2.csv};
+                \addlegendentry{Adagrad}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_optimizer_4.csv};
+                \addlegendentry{ASGD}
             \end{axis}
         \end{tikzpicture}
-        \label{fig:bc_top}
+        \caption{Верхняя граница}
+        \label{fig:bc_top_optimizer}
     \end{subfigure}
-    \vspace{0.05cm}
     \begin{subfigure}[b]{0.4\textwidth}
-        \begin{tikzpicture}
+        \begin{tikzpicture}[scale=0.85]
             \begin{axis}[
                 ymode=log,
-                xlabel={Эпоха},
-                ylabel={Медиана},
+                legend style={font=\tiny},
                 xmin=0,
                 xtick distance=4000,
                 axis lines=left,
-                grid=both,
-                title={Левая граница},
-                width=\textwidth
+                grid=both
             ]
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_optimizer_1.csv};
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_optimizer_2.csv};
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_optimizer_4.csv};
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_optimizer_1.csv};
+                \addlegendentry{Adam}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_optimizer_2.csv};
+                \addlegendentry{Adagrad}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_optimizer_4.csv};
+                \addlegendentry{ASGD}
             \end{axis}
         \end{tikzpicture}
-        \label{fig:bc_left}
+        \caption{Левая граница}
+        \label{fig:bc_left_optimizer}
     \end{subfigure}
     \hspace{0.5cm}
     \begin{subfigure}[b]{0.4\textwidth}
-        \begin{tikzpicture}
+        \begin{tikzpicture}[scale=0.85]
             \begin{axis}[
                 ymode=log,
-                xlabel={Эпоха},
-                % ylabel={Медиана},
+                legend style={font=\tiny},
                 xmin=0,
                 xtick distance=4000,
                 axis lines=left,
-                grid=both,
-                title={Правая граница},
-                width=\textwidth
+                grid=both
             ]
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_optimizer_1.csv};
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_optimizer_2.csv};
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_optimizer_4.csv};
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_optimizer_1.csv};
+                \addlegendentry{Adam}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_optimizer_2.csv};
+                \addlegendentry{Adagrad}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_optimizer_4.csv};
+                \addlegendentry{ASGD}
             \end{axis}
         \end{tikzpicture}
-        \label{fig:bc_right}
+        \caption{Правая граница}
+        \label{fig:bc_right_optimizer}
     \end{subfigure}
     \caption{Зависимость медианы функции потерь на каждой эпохе при разных оптимизаторах}
     \label{fig:bc_loss_optimizer}
 \end{figure}
+
+Аналогичное поведение оптимизаторов можно заметить на графике для нижней
+границы (рис. \ref{fig:bc_bottom_optimizer}). На графиках левой
+(рис. \ref{fig:bc_left_optimizer}) и правой (рис. \ref{fig:bc_right_optimizer})
+границах можно заметить смещение оптимизатора ASGD ближе к Adagrad, что может
+свидетельствовать о преобладающем нулевом решении.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{figure}[htbp]
     \centering
     \begin{subfigure}[b]{0.4\textwidth}
-        \begin{tikzpicture}
+        \centering
+        \begin{tikzpicture}[scale=0.85]
             \begin{axis}[
                 ymode=log,
-                ymin=1e-5, ymax=1e-2,
-                xlabel={Эпоха},
-                ylabel={Медиана},
+                ymax=1e-2,
+                legend style={font=\tiny},
                 xmin=0,
                 xtick distance=4000,
                 axis lines=left,
-                grid=both,
-                title={Уравнение для $v_x$},
-                width=\textwidth
+                grid=both
             ]
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_optimizer_1.csv};
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_optimizer_2.csv};
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_optimizer_4.csv};
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_optimizer_1.csv};
+                \addlegendentry{Adam}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_optimizer_2.csv};
+                \addlegendentry{Adagrad}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_optimizer_4.csv};
+                \addlegendentry{ASGD}
             \end{axis}
         \end{tikzpicture}
+        \caption{Уравнение для $u_x$}
+        \label{fig:pde_ux_optimizer}
     \end{subfigure}
     \hspace{0.5cm}
     \begin{subfigure}[b]{0.4\textwidth}
-        \begin{tikzpicture}
+        \centering
+        \begin{tikzpicture}[scale=0.85]
             \begin{axis}[
                 ymode=log,
-                ymin=1e-5, ymax=1e-2,
-                xlabel={Эпоха},
-                % ylabel={Медиана},
+                ymax=1e-2,
+                legend style={font=\tiny},
                 xmin=0,
                 xtick distance=4000,
                 axis lines=left,
-                grid=both,
-                title={Уравнение для $v_y$},
-                width=\textwidth
+                grid=both
             ]
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_optimizer_1.csv};
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_optimizer_2.csv};
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_optimizer_4.csv};
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_optimizer_1.csv};
+                \addlegendentry{Adam}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_optimizer_2.csv};
+                \addlegendentry{Adagrad}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_optimizer_4.csv};
+                \addlegendentry{ASGD}
             \end{axis}
         \end{tikzpicture}
+        \caption{Уравнение для $u_y$}
+        \label{fig:pde_uy_optimizer}
     \end{subfigure}
     \begin{subfigure}[b]{0.7\textwidth}
+        \centering
         \begin{tikzpicture}
             \begin{axis}[
                 ymode=log,
-                ymin=1e-4, ymax=1e-2,
-                xlabel={Эпоха},
-                ylabel={Медиана},
+                ymax=1e-2,
+                legend style={font=\small},
                 xmin=0,
                 xtick distance=1000,
                 axis lines=left,
                 grid=both,
-                title={Уравнение непрерывности},
                 width=\textwidth
             ]
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_optimizer_1.csv};
-            % \addlegendentry{(32, 64, 32)}
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_optimizer_2.csv};
-            % \addlegendentry{(64, 32, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_optimizer_4.csv};
-            % \addlegendentry{(64, 64)}
-        \end{axis}
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_optimizer_1.csv};
+                \addlegendentry{Adam}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_optimizer_2.csv};
+                \addlegendentry{Adagrad}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_optimizer_4.csv};
+                \addlegendentry{ASGD}
+            \end{axis}
         \end{tikzpicture}
+        \caption{Уравнение непрерывности}
+        \label{fig:pde_continuity_optimizer}
     \end{subfigure}
     \caption{Функция потерь для уравнений Навье-Стокса \eqref{eq:navier_stockes} при разных оптимизаторах}
     \label{fig:pde_loss_optimizer}
 \end{figure}
+
+Для уравнений Навье-Стокса можно заметить рост функции потерь для оптимизатора
+ASGD (рис. \ref{fig:pde_ux_optimizer} и \ref{fig:pde_continuity_optimizer}).
+Таким образом происходит процесс поиска глобального минимума. Дело в том,
+что функция потерь для верхней границы много больше, чем для уравнений Навье-Стокса
+($10^{-0.8}$ против $10^{-2.9}$). Оптимизатор пытается выбраться из локального 
+минимума, где решение стремится к нулевому в силу своей корректности с точки
+зрения уравнений Навье-Стокса. Что касательно уравнения для скорости $u_y$
+(рис. \ref{fig:pde_uy_optimizer}), график оптимизатора ASGD остается
+практически неизменным, что опять же соответствует нулевому решению.
+Остальные оптимизаторы имеют поведение схожее с поведением на границах.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -167,8 +221,6 @@
         \begin{axis}[
             width=0.8\textwidth,
             ymode=log,
-            xlabel={Эпоха},
-            ylabel={Медиана},
             xmin=0,
             xtick distance=1000,
             axis lines=left,
@@ -185,3 +237,6 @@
     \caption{Итоговая функция потерь при разных оптимизаторах}
     \label{fig:total_loss_optimizer}
 \end{figure}
+
+Итого на суммарной функции потерь (рис. \ref{fig:total_loss_optimizer}),
+оптимизатор Adam имеет наименьшую функцию потерь.

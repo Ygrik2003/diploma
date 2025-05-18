@@ -112,13 +112,18 @@ NaN (рис. \ref{fig:couette_react_stat}).
 \end{enumerate} 
 
 Теперь получив более точное представление о наших параметрах можно приступить
-ко второму этапу обучения с использованием комплексной функцией активации ABU \cite{Sutfeld2018-io}.
+ко второму этапу обучения с использованием комплексной функцией активации \textbf{ABU} \cite{Sutfeld2018-io}.
 
 Для более корректной оценки результатов будем анализировать медиану для каждого параметра
 на протяжении всего этапа обучения.
+
+В представленных ниже графиках показано сравнение результатов работы нейронной сети
+при различных гиперпараметрах. Такой подход позволяет детально проанализировать
+влияние каждого параметра на общую эффективность модели и выявить, какие параметры
+обеспечивают наилучшее качество обучения.
 \input{images/tikz/results/loss_couette_abu_neurons.tex}
-% \input{images/tikz/results/loss_couette_abu_optimizer.tex}
-% \input{images/tikz/results/loss_couette_abu_scale_quadratic.tex}
+\input{images/tikz/results/loss_couette_abu_optimizer.tex}
+\input{images/tikz/results/loss_couette_abu_scale_quadratic.tex}
 % \input{images/tikz/results/loss_couette_abu_scale_softplus.tex}
 % \input{images/tikz/results/loss_couette_abu_scale_swish.tex}
 % \input{images/tikz/results/loss_couette_abu_scale_tanh.tex}

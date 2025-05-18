@@ -1,5 +1,23 @@
 \section{Зависимость от конфигурации нейронной сети}
 
+Сперва стоит подметить, что в данном случае основными компонентами данной задачи
+являются функции потерь на нижней и верхней границе в силу условий поставленной
+задачи и только потом в учет идут уравнения Навье-Стокса. В большинстве случаев,
+отдавая приоритет любой другой компоненте мы получем нулевое решение, что не
+удовлетворяет поставленной задачи.
+
+Как можно заметить, на верхней границе (рис. \ref{fig:bc_top_neurons}), стабильнее
+всего показывает себя результат при конфигурации нейронной сети $128-128$. В
+случае трехслойных конфигураций можно подметить нестабильное поведение, что
+может говорить о постоянном поподании в локальные минимумы. Такие конфигурации
+нам не подходят в силу комплекстности нашей функции потерь, где любая
+нестабильность может привести к нулевому решению. Конфигурация $64-64$
+на интервале до 4000 эпох не имеет перепадов, но ее результаты хуже
+чем у конфигурации $128-128$. Такая конфигурация может быть полезна, 
+если нужно получить не очень точные результаты за короткий промежуток
+времени.
+
+
 \begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.4\textwidth}
@@ -12,15 +30,15 @@
                 axis lines=left,
                 grid=both
             ]            
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_neurons_(32, 64, 32).csv};
-            \addlegendentry{(32, 64, 32)}
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_neurons_(64, 32, 64).csv};
-            \addlegendentry{(64, 32, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_neurons_(64, 64).csv};
-            \addlegendentry{(64, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_neurons_(128, 128).csv};
-            \addlegendentry{(128, 128)}
-        \end{axis}
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_neurons_(32, 64, 32).csv};
+                \addlegendentry{(32, 64, 32)}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_neurons_(64, 32, 64).csv};
+                \addlegendentry{(64, 32, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_neurons_(64, 64).csv};
+                \addlegendentry{(64, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_bottom_neurons_(128, 128).csv};
+                \addlegendentry{(128, 128)}
+            \end{axis}
         \end{tikzpicture}
         \caption{Нижняя граница}
         \label{fig:bc_bottom_neurons}
@@ -36,15 +54,15 @@
                 axis lines=left,
                 grid=both
             ]
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_neurons_(32, 64, 32).csv};
-            \addlegendentry{(32, 64, 32)}
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_neurons_(64, 32, 64).csv};
-            \addlegendentry{(64, 32, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_neurons_(64, 64).csv};
-            \addlegendentry{(64, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_neurons_(128, 128).csv};
-            \addlegendentry{(128, 128)}
-        \end{axis}
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_neurons_(32, 64, 32).csv};
+                \addlegendentry{(32, 64, 32)}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_neurons_(64, 32, 64).csv};
+                \addlegendentry{(64, 32, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_neurons_(64, 64).csv};
+                \addlegendentry{(64, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_top_neurons_(128, 128).csv};
+                \addlegendentry{(128, 128)}
+            \end{axis}
         \end{tikzpicture}
         \caption{Верхняя граница}
         \label{fig:bc_top_neurons}
@@ -59,15 +77,15 @@
                 axis lines=left,
                 grid=both
             ]
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_neurons_(32, 64, 32).csv};
-            \addlegendentry{(32, 64, 32)}
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_neurons_(64, 32, 64).csv};
-            \addlegendentry{(64, 32, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_neurons_(64, 64).csv};
-            \addlegendentry{(64, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_neurons_(128, 128).csv};
-            \addlegendentry{(128, 128)}
-        \end{axis}
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_neurons_(32, 64, 32).csv};
+                \addlegendentry{(32, 64, 32)}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_neurons_(64, 32, 64).csv};
+                \addlegendentry{(64, 32, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_neurons_(64, 64).csv};
+                \addlegendentry{(64, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_left_neurons_(128, 128).csv};
+                \addlegendentry{(128, 128)}
+            \end{axis}
         \end{tikzpicture}
         \caption{Левая граница}
         \label{fig:bc_left_neurons}
@@ -83,15 +101,15 @@
                 axis lines=left,
                 grid=both
             ]
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_neurons_(32, 64, 32).csv};
-            \addlegendentry{(32, 64, 32)}
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_neurons_(64, 32, 64).csv};
-            \addlegendentry{(64, 32, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_neurons_(64, 64).csv};
-            \addlegendentry{(64, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_neurons_(128, 128).csv};
-            \addlegendentry{(128, 128)}
-        \end{axis}
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_neurons_(32, 64, 32).csv};
+                \addlegendentry{(32, 64, 32)}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_neurons_(64, 32, 64).csv};
+                \addlegendentry{(64, 32, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_neurons_(64, 64).csv};
+                \addlegendentry{(64, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/bc_right_neurons_(128, 128).csv};
+                \addlegendentry{(128, 128)}
+            \end{axis}
         \end{tikzpicture}
         \caption{Правая граница}
         \label{fig:bc_right_neurons}
@@ -99,6 +117,18 @@
     \caption{Зависимость медианы функции потерь на каждой эпохе при разной конфигурации нейронной сети}
     \label{fig:bc_loss_neurons}
 \end{figure}
+
+В добавок можно подметить небольшие флуктуации, возникающие в районе 5000 эпох. Это может свидетельствовать
+об переобучении, которого также стоит избегать. В случае задач, где примерный результат известен, не составит
+труда отличить верное решение от неверного. При таком исходе флуктуации могут помочь найти еще более
+точное решение. Однако если нет возможности оценить правильность результата визуально --- стоит полагаться
+только на стабильные участки функции потерь.
+
+Рассмотрим нижнюю границу (рис. \ref{fig:bc_bottom_neurons}). На этой границе в поставленной задаче должно
+выполняться равенство нулю всех компонент, что может выполняться в случае нулевого решения. Исключить 
+нулевое решение можно оценив поведение уравнений Навье-Стокса для данной модели. В случае, если на верхней
+границе функция потерь стремится к нулю и при этом функция потерь уравнения непрерывности (рис. \ref{fig:pde_continuity_neurons})
+также стремится к нулю, можно сделать вывод о том, что решение не является нулевым.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -116,15 +146,15 @@
                 axis lines=left,
                 grid=both
             ]
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_neurons_(32, 64, 32).csv};
-            \addlegendentry{(32, 64, 32)}
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_neurons_(64, 32, 64).csv};
-            \addlegendentry{(64, 32, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_neurons_(64, 64).csv};
-            \addlegendentry{(64, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_neurons_(128, 128).csv};
-            \addlegendentry{(128, 128)}
-        \end{axis}
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_neurons_(32, 64, 32).csv};
+                \addlegendentry{(32, 64, 32)}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_neurons_(64, 32, 64).csv};
+                \addlegendentry{(64, 32, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_neurons_(64, 64).csv};
+                \addlegendentry{(64, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_neurons_(128, 128).csv};
+                \addlegendentry{(128, 128)}
+            \end{axis}
         \end{tikzpicture}
         \caption{Уравнение для $u_x$}
         \label{fig:pde_ux_neurons}
@@ -142,25 +172,24 @@
                 axis lines=left,
                 grid=both
             ]
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_neurons_(32, 64, 32).csv};
-            \addlegendentry{(32, 64, 32)}
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_neurons_(64, 32, 64).csv};
-            \addlegendentry{(64, 32, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_neurons_(64, 64).csv};
-            \addlegendentry{(64, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_neurons_(128, 128).csv};
-            \addlegendentry{(128, 128)}
-        \end{axis}
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_neurons_(32, 64, 32).csv};
+                \addlegendentry{(32, 64, 32)}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_neurons_(64, 32, 64).csv};
+                \addlegendentry{(64, 32, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_neurons_(64, 64).csv};
+                \addlegendentry{(64, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_neurons_(128, 128).csv};
+                \addlegendentry{(128, 128)}
+            \end{axis}
         \end{tikzpicture}
         \caption{Уравнение для $u_y$}
         \label{fig:pde_uy_neurons}
     \end{subfigure}
-    \begin{subfigure}[b]{0.8\textwidth}
+    \begin{subfigure}[b]{0.7\textwidth}
         \centering
         \begin{tikzpicture}
             \begin{axis}[
                 ymode=log,
-                ymin=1e-4, ymax=1e-2,
                 legend style={font=\small},
                 xmin=0,
                 xtick distance=1000,
@@ -168,15 +197,15 @@
                 grid=both,
                 width=\textwidth
             ]
-            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_neurons_(32, 64, 32).csv};
-            \addlegendentry{(32, 64, 32)}
-            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_neurons_(64, 32, 64).csv};
-            \addlegendentry{(64, 32, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_neurons_(64, 64).csv};
-            \addlegendentry{(64, 64)}
-            \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_neurons_(128, 128).csv};
-            \addlegendentry{(128, 128)}
-        \end{axis}
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_neurons_(32, 64, 32).csv};
+                \addlegendentry{(32, 64, 32)}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_neurons_(64, 32, 64).csv};
+                \addlegendentry{(64, 32, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, blue] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_neurons_(64, 64).csv};
+                \addlegendentry{(64, 64)}
+                \addplot+[mark=*, mark size=1pt, thick, orange] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_neurons_(128, 128).csv};
+                \addlegendentry{(128, 128)}
+            \end{axis}
         \end{tikzpicture}
         \caption{Уравнение непрерывности}
         \label{fig:pde_continuity_neurons}
@@ -184,6 +213,15 @@
     \caption{Функция потерь для уравнений Навье-Стокса \eqref{eq:navier_stockes} при разной конфигурации нейронной сети}
     \label{fig:pde_loss_neurons}
 \end{figure}
+
+Теперь когда мы знаем, что наше решение не нулевое --- осталось проанализировать внутренних переходов скорости,
+за которые отвечают функции потери для компонент скорости в уравнениях Навье-Стокса (рис. \ref{fig:pde_ux_neurons}
+и \ref{fig:pde_uy_neurons}). Для нашей задачи компонента $u_y$ малозначима в силу ее нулевого значения для всего
+решения. Если рассматривать компоненту $v_x$ а также уравнение непрерывности, можно заметить разделение на два
+кластера --- трехслойные и двухслойные модели. Пусть трехслойные и показывают лучшие результаты, чем двухслойные,
+как мы выяснили ранее, такие модели могут чаще выдавать нулевое решение, что полностью соответствует малым значением
+потерь для уравнений Навье-Стокса.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -211,3 +249,6 @@
     \caption{Итоговая функция потерь при разной конфигурации нейронной сети}
     \label{fig:total_loss_neurons}
 \end{figure}
+
+Итого на суммарной функции потерь (рис. \ref{fig:total_loss_neurons}),
+конфигурация $128-128$ имеет наименьшую функцию потерь на всех эпохах.
