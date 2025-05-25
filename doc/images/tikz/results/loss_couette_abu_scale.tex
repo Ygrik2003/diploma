@@ -1,0 +1,414 @@
+\section{Зависимость от фукции активации ABU}
+
+В первую очередь функция активация играет основополагающую роль для
+детерминирования поведения внутри домена. Это связано с тем, что
+уравнения Навье-Стокса имеют сложную структуру. Если поставленная
+задача имеет не нулевое решение, то нахождение верного решения внутри
+домена зависит только от функции активации.
+
+Как ранее упоминалось, ABU является взвешенной суммой элементарных функций
+активации \eqref{eq:abu_custom}. Рассмотрим влияние каждого слагаемого на
+функцию потерь.
+\subsection{Квадратичная функция}
+Нужно понимать, что введение нелинейности в решение не всегда помогает
+найти более точное решение. Наблюдая за функцией потерь
+(рис. \ref{fig:pde_loss_scale_quadratic}) можно заметить, что для уравнения
+непрерывности (рис. \ref{fig:pde_continuity_scale_quadratic}) и уравнения
+компоненты $u_x$ (рис. \ref{fig:pde_ux_scale_quadratic}) поведение 
+остается одинаковым, однако для компоненты $u_y$ (рис. \ref{fig:pde_uy_scale_quadratic})
+доминирует $\beta_2 = 0.0$.
+
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.85]
+            \begin{axis}[
+                ymode=log,
+                ymax=1e-2,
+                legend style={font=\tiny},
+                xmin=0,
+                xtick distance=4000,
+                axis lines=left,
+                grid=both
+            ]
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_scale_quadratic_0.0.csv};
+                \addlegendentry{$0.0$}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_scale_quadratic_1.0.csv};
+                \addlegendentry{$1.0$}
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Уравнение для $u_x$}
+        \label{fig:pde_ux_scale_quadratic}
+    \end{subfigure}
+    \hspace{0.5cm}
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.85]
+            \begin{axis}[
+                ymode=log,
+                ymax=1e-2,
+                legend style={font=\tiny},
+                xmin=0,
+                xtick distance=4000,
+                axis lines=left,
+                grid=both
+            ]
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_scale_quadratic_0.0.csv};
+                \addlegendentry{$0.0$}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_scale_quadratic_1.0.csv};
+                \addlegendentry{$1.0$}
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Уравнение для $u_y$}
+        \label{fig:pde_uy_scale_quadratic}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.85]
+            \begin{axis}[
+                ymode=log,
+                ymax=1e-2,
+                legend style={font=\tiny},
+                xmin=0,
+                xtick distance=2000,
+                axis lines=left,
+                grid=both
+            ]
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_scale_quadratic_0.0.csv};
+                \addlegendentry{$0.0$}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_scale_quadratic_1.0.csv};
+                \addlegendentry{$1.0$}
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Уравнение непрерывности}
+        \label{fig:pde_continuity_scale_quadratic}
+    \end{subfigure}
+    \caption{Функция потерь для уравнений Навье-Стокса \eqref{eq:navier_stockes} при разных коэффициентов для функции активации Quadratic}
+    \label{fig:pde_loss_scale_quadratic}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+В целом данный вывод подтверждается и на графике общей функции потерь
+(рис. \ref{fig:pde_loss_scale_quadratic}). Это объясняется линейностью
+решения задачи, где отсутствует квадратичная нелинейность.
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=0.6\textwidth,
+            ymode=log,
+            xmin=0,
+            xtick distance=2000,
+            axis lines=left,
+            grid=both,
+        ]
+            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/total_loss_scale_quadratic_0.0.csv};
+            \addlegendentry{$0.0$}
+            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/total_loss_scale_quadratic_1.0.csv};
+            \addlegendentry{$1.0$}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Итоговая функция потерь при разных коэффициентов для функции активации Quadratic}
+    \label{fig:total_loss_scale_quadratic}
+\end{figure}
+
+\subsection{Softplus функция}
+Данная функция пусть и не линейная, но данная нелинейность проявляется в 
+окрестностях нуля, на остальном же промежутке можно ее считать линейной.
+Как видно из графиков для уравнений Навье-Стокса (рис. \ref{fig:pde_loss_scale_softplus}),
+при $\beta_1 = 0$ получаемый результат незначительно лучше.
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.85]
+            \begin{axis}[
+                ymode=log,
+                ymax=1e-2,
+                legend style={font=\tiny},
+                xmin=0,
+                xtick distance=4000,
+                axis lines=left,
+                grid=both
+            ]
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_scale_softplus_0.0.csv};
+                \addlegendentry{$0.0$}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_scale_softplus_1.0.csv};
+                \addlegendentry{$1.0$}
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Уравнение для $u_x$}
+        \label{fig:pde_ux_scale_softplus}
+    \end{subfigure}
+    \hspace{0.5cm}
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.85]
+            \begin{axis}[
+                ymode=log,
+                ymax=1e-2,
+                legend style={font=\tiny},
+                xmin=0,
+                xtick distance=4000,
+                axis lines=left,
+                grid=both
+            ]
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_scale_softplus_0.0.csv};
+                \addlegendentry{$0.0$}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_scale_softplus_1.0.csv};
+                \addlegendentry{$1.0$}
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Уравнение для $u_y$}
+        \label{fig:pde_uy_scale_softplus}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.85]
+            \begin{axis}[
+                ymode=log,
+                ymax=1e-2,
+                legend style={font=\tiny},
+                xmin=0,
+                xtick distance=2000,
+                axis lines=left,
+                grid=both
+            ]
+                \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_scale_softplus_0.0.csv};
+                \addlegendentry{$0.0$}
+                \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_scale_softplus_1.0.csv};
+                \addlegendentry{$1.0$}
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Уравнение непрерывности}
+        \label{fig:pde_continuity_scale_softplus}
+    \end{subfigure}
+    \caption{Функция потерь для уравнений Навье-Стокса \eqref{eq:navier_stockes} при разных коэффициентов для функции активации Softplus}
+    \label{fig:pde_loss_scale_softplus}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Однако в силу потерь на границах, на результирующем графике видим обратное:
+при $\beta_1 = 1$ результат значительно лучше
+(рис. \ref{fig:total_loss_scale_softplus}).
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=0.6\textwidth,
+            ymode=log,
+            xmin=0,
+            xtick distance=2000,
+            axis lines=left,
+            grid=both,
+        ]
+            \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/total_loss_scale_softplus_0.0.csv};
+            \addlegendentry{$0.0$}
+            \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/total_loss_scale_softplus_1.0.csv};
+            \addlegendentry{$1.0$}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Итоговая функция потерь при разных коэффициентов для функции активации Softplus}
+    \label{fig:total_loss_scale_softplus}
+\end{figure}
+
+% \subsection{SiLU функция}
+\subsection{SiLU и Tanh функция}
+Аналогичный результат присутствует и для функций активации SiLU и Tanh. Одной
+из причин такого поведения является маленькая выборка коэффициентов $\beta_i$.
+Второй причиной является присутствие шума в виде ранее отсеяных оптимизаторов
+и конфигурации слоев. Для более сложных задач следует проводить повторную
+кроссвалидацию каждый раз после фильтрации кросспараметров, добавляя больше
+параметров для качественного результата.
+% \begin{figure}[H]
+%     \centering
+%     \begin{subfigure}[b]{0.4\textwidth}
+%         \centering
+%         \begin{tikzpicture}[scale=0.85]
+%             \begin{axis}[
+%                 ymode=log,
+%                 ymax=1e-2,
+%                 legend style={font=\tiny},
+%                 xmin=0,
+%                 xtick distance=4000,
+%                 axis lines=left,
+%                 grid=both
+%             ]
+%                 \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_scale_swish_0.0.csv};
+%                 \addlegendentry{$0.0$}
+%                 \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_scale_swish_1.0.csv};
+%                 \addlegendentry{$1.0$}
+%             \end{axis}
+%         \end{tikzpicture}
+%         \caption{Уравнение для $u_x$}
+%         \label{fig:pde_ux_scale_swish}
+%     \end{subfigure}
+%     \hspace{0.5cm}
+%     \begin{subfigure}[b]{0.4\textwidth}
+%         \centering
+%         \begin{tikzpicture}[scale=0.85]
+%             \begin{axis}[
+%                 ymode=log,
+%                 ymax=1e-2,
+%                 legend style={font=\tiny},
+%                 xmin=0,
+%                 xtick distance=4000,
+%                 axis lines=left,
+%                 grid=both
+%             ]
+%                 \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_scale_swish_0.0.csv};
+%                 \addlegendentry{$0.0$}
+%                 \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_scale_swish_1.0.csv};
+%                 \addlegendentry{$1.0$}
+%             \end{axis}
+%         \end{tikzpicture}
+%         \caption{Уравнение для $u_y$}
+%         \label{fig:pde_uy_scale_swish}
+%     \end{subfigure}
+%     \begin{subfigure}[b]{0.7\textwidth}
+%         \centering
+%         \begin{tikzpicture}[scale=0.85]
+%             \begin{axis}[
+%                 ymode=log,
+%                 ymax=1e-2,
+%                 legend style={font=\tiny},
+%                 xmin=0,
+%                 xtick distance=2000,
+%                 axis lines=left,
+%                 grid=both
+%             ]
+%                 \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_scale_swish_0.0.csv};
+%                 \addlegendentry{$0.0$}
+%                 \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_scale_swish_1.0.csv};
+%                 \addlegendentry{$1.0$}
+%             \end{axis}
+%         \end{tikzpicture}
+%         \caption{Уравнение непрерывности}
+%         \label{fig:pde_continuity_scale_swish}
+%     \end{subfigure}
+%     \caption{Функция потерь для уравнений Навье-Стокса \eqref{eq:navier_stockes} при разных коэффициентов для функции активации SiLU}
+%     \label{fig:pde_loss_scale_swish}
+% \end{figure}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{figure}[H]
+%     \centering
+%     \begin{tikzpicture}
+%         \begin{axis}[
+%             width=0.6\textwidth,
+%             ymode=log,
+%             xmin=0,
+%             xtick distance=2000,
+%             axis lines=left,
+%             grid=both,
+%         ]
+%             \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/total_loss_scale_swish_0.0.csv};
+%             \addlegendentry{$0.0$}
+%             \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/total_loss_scale_swish_1.0.csv};
+%             \addlegendentry{$1.0$}
+%         \end{axis}
+%     \end{tikzpicture}
+%     \caption{Итоговая функция потерь при разных коэффициентов для функции активации SiLU}
+%     \label{fig:total_loss_scale_swish}
+% \end{figure}
+
+
+% \subsection{Tanh функция}
+
+% \begin{figure}[H]
+%     \centering
+%     \begin{subfigure}[b]{0.4\textwidth}
+%         \centering
+%         \begin{tikzpicture}[scale=0.85]
+%             \begin{axis}[
+%                 ymode=log,
+%                 ymax=1e-2,
+%                 legend style={font=\tiny},
+%                 xmin=0,
+%                 xtick distance=4000,
+%                 axis lines=left,
+%                 grid=both
+%             ]
+%                 \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_scale_tanh_0.0.csv};
+%                 \addlegendentry{$0.0$}
+%                 \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_x_scale_tanh_1.0.csv};
+%                 \addlegendentry{$1.0$}
+%             \end{axis}
+%         \end{tikzpicture}
+%         \caption{Уравнение для $u_x$}
+%         \label{fig:pde_ux_scale_tanh}
+%     \end{subfigure}
+%     \hspace{0.5cm}
+%     \begin{subfigure}[b]{0.4\textwidth}
+%         \centering
+%         \begin{tikzpicture}[scale=0.85]
+%             \begin{axis}[
+%                 ymode=log,
+%                 ymax=1e-2,
+%                 legend style={font=\tiny},
+%                 xmin=0,
+%                 xtick distance=4000,
+%                 axis lines=left,
+%                 grid=both
+%             ]
+%                 \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_scale_tanh_0.0.csv};
+%                 \addlegendentry{$0.0$}
+%                 \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_momentum_y_scale_tanh_1.0.csv};
+%                 \addlegendentry{$1.0$}
+%             \end{axis}
+%         \end{tikzpicture}
+%         \caption{Уравнение для $u_y$}
+%         \label{fig:pde_uy_scale_tanh}
+%     \end{subfigure}
+%     \begin{subfigure}[b]{0.7\textwidth}
+%         \centering
+%         \begin{tikzpicture}[scale=0.85]
+%             \begin{axis}[
+%                 ymode=log,
+%                 ymax=1e-2,
+%                 legend style={font=\tiny},
+%                 xmin=0,
+%                 xtick distance=2000,
+%                 axis lines=left,
+%                 grid=both,
+%             ]
+%                 \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_scale_tanh_0.0.csv};
+%                 \addlegendentry{$0.0$}
+%                 \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_scale_tanh_1.0.csv};
+%                 \addlegendentry{$1.0$}
+%             \end{axis}
+%         \end{tikzpicture}
+%         \caption{Уравнение непрерывности}
+%         \label{fig:pde_continuity_scale_tanh}
+%     \end{subfigure}
+%     \caption{Функция потерь для уравнений Навье-Стокса \eqref{eq:navier_stockes} при разных коэффициентов для функции активации Tanh}
+%     \label{fig:pde_loss_scale_tanh}
+% \end{figure}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{figure}[H]
+%     \centering
+%     \begin{tikzpicture}
+%         \begin{axis}[
+%             width=0.6\textwidth,
+%             ymode=log,
+%             xmin=0,
+%             xtick distance=2000,
+%             axis lines=left,
+%             grid=both,
+%         ]
+%             \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/total_loss_scale_tanh_0.0.csv};
+%             \addlegendentry{$0.0$}
+%             \addplot+[mark=*, mark size=1pt, thick, green] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/total_loss_scale_tanh_1.0.csv};
+%             \addlegendentry{$1.0$}
+%         \end{axis}
+%     \end{tikzpicture}
+%     \caption{Итоговая функция потерь при разных коэффициентов для функции активации Tanh}
+%     \label{fig:total_loss_scale_tanh}
+% \end{figure}

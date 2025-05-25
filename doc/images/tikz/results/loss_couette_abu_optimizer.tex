@@ -24,7 +24,7 @@
 включает в себя преймущества двух предыдущих и является универсальным,
 поэтому не требует такой же точной настройки параметров.
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.4\textwidth}
         \begin{tikzpicture}[scale=0.85]
@@ -124,7 +124,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.4\textwidth}
         \centering
@@ -175,16 +175,15 @@
     \end{subfigure}
     \begin{subfigure}[b]{0.7\textwidth}
         \centering
-        \begin{tikzpicture}
+        \begin{tikzpicture}[scale=0.85]
             \begin{axis}[
                 ymode=log,
                 ymax=1e-2,
-                legend style={font=\small},
+                legend style={font=\tiny},
                 xmin=0,
-                xtick distance=1000,
+                xtick distance=4000,
                 axis lines=left,
-                grid=both,
-                width=\textwidth
+                grid=both
             ]
                 \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_optimizer_1.csv};
                 \addlegendentry{Adam}
@@ -215,14 +214,14 @@ ASGD (рис. \ref{fig:pde_ux_optimizer} и \ref{fig:pde_continuity_optimizer}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}
         \begin{axis}[
-            width=0.8\textwidth,
+            width=0.6\textwidth,
             ymode=log,
             xmin=0,
-            xtick distance=1000,
+            xtick distance=2000,
             axis lines=left,
             grid=both,
         ]

@@ -18,7 +18,7 @@
 времени.
 
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.4\textwidth}
         \begin{tikzpicture}[scale=0.85]
@@ -132,7 +132,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.4\textwidth}
         \centering
@@ -185,17 +185,16 @@
         \caption{Уравнение для $u_y$}
         \label{fig:pde_uy_neurons}
     \end{subfigure}
-    \begin{subfigure}[b]{0.7\textwidth}
+    \begin{subfigure}[b]{0.4\textwidth}
         \centering
-        \begin{tikzpicture}
+        \begin{tikzpicture}[scale=0.85]
             \begin{axis}[
                 ymode=log,
-                legend style={font=\small},
-                xmin=0,
-                xtick distance=1000,
+                xmin=0, ymax=1e-2,
+                legend style={font=\tiny},
+                xtick distance=4000,
                 axis lines=left,
                 grid=both,
-                width=\textwidth
             ]
                 \addplot+[mark=*, mark size=1pt, thick, red] table[x=step, y=value, col sep=comma]{data/couette_abu/loss/pde_continuity_neurons_(32, 64, 32).csv};
                 \addlegendentry{(32, 64, 32)}
@@ -225,14 +224,14 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}
         \begin{axis}[
-            width=0.8\textwidth,
+            width=0.6\textwidth,
             ymode=log,
             xmin=0,
-            xtick distance=1000,
+            xtick distance=2000,
             axis lines=left,
             grid=both,
         ]
