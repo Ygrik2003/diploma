@@ -20,11 +20,13 @@
 
 \setsecnumdepth{subsection} % Номера разделов считать до третьего уровня включительно, т.е. нумеруются только главы, секции, подсекции
 \renewcommand*{\chapterheadstart}{} % Переопределяем команду, задающую отступ над заголовком, чтобы отступа не было
-\renewcommand*{\printchaptername}{} % Переопределяем команду, печатающую слово "Глава", чтобы оно не печалось
+% \newcommand{\chapterfont}{\fontsize{14pt}{16pt}\selectfont}
+% \renewcommand*{\printchaptername}{} % Переопределяем команду, печатающую слово "Глава", чтобы оно не печалось
 %\renewcommand*{\printchapternum}{} % То же самое для номера главы - тут не надо, номер главы оставляем
-\renewcommand*{\chapnumfont}{\normalfont\bfseries} % Меняем стиль шрифта для номера главы: нормальный размер, полужирный
+\renewcommand*{\chapnumfont}{\large\bfseries} % Меняем стиль шрифта для номера главы: нормальный размер, полужирный
+\renewcommand*{\chapnamefont}{\large\bfseries} % Меняем стиль шрифта для номера главы: нормальный размер, полужирный
 \renewcommand*{\afterchapternum}{\hspace{1em}} % Меняем разделитель между номером главы и названием
-\renewcommand*{\printchaptertitle}{\normalfont\bfseries\centering\MakeUppercase} % Меняем стиль написания для заголовка главы: нормальный размер, полужирный, центрированный, заглавными буквами
+\renewcommand*{\printchaptertitle}{\large\bfseries\centering} % Меняем стиль написания для заголовка главы: нормальный размер, полужирный, центрированный
 \setbeforesecskip{20pt} % Задаем отступ перед заголовком секции
 \setaftersecskip{20pt} % Ставим такой же отступ после заголовка секции
 \setsecheadstyle{\raggedright\normalfont\bfseries} % Меняем стиль написания для заголовка секции: выравнивание по правому краю без переносов, нормальный размер, полужирный
@@ -34,19 +36,18 @@
 
 %%% Задаем параметры оглавления %%%
 
-\addto\captionsrussian{\renewcommand\contentsname{Содержание}} % Меняем слово "Оглавление" на "Содержание"
 \setrmarg{2.55em plus1fil} % Запрещаем переносы слов в оглавлении
 %\setlength{\cftbeforechapterskip}{0pt} % Эта команда убирает интервал между заголовками глав - тут не надо, так красивее смотрится
 \renewcommand{\aftertoctitle}{\afterchaptertitle \vspace{-\cftbeforechapterskip}} % Делаем отступ между словом "Содержание" и первой строкой таким же, как у заголовков глав
 \renewcommand*{\chapternumberline}[1]{} % Делаем так, чтобы номер главы не печатался - тут не надо
 \renewcommand*{\cftchapternumwidth}{1.5em} % Ставим подходящий по размеру разделитель между номером главы и самим заголовком
-\renewcommand*{\cftchapterfont}{\normalfont\MakeUppercase} % Названия глав обычным шрифтом заглавными буквами
+\renewcommand*{\cftchapterfont}{\normalfont} % Названия глав обычным шрифтом заглавными буквами
 \renewcommand*{\cftchapterpagefont}{\normalfont} % Номера страниц обычным шрифтом
 \renewcommand*{\cftchapterdotsep}{\cftdotsep} % Делаем точки до номера страницы после названий глав
 \renewcommand*{\cftdotsep}{1} % Задаем расстояние между точками
 \renewcommand*{\cftchapterleader}{\cftdotfill{\cftchapterdotsep}} % Делаем точки стандартной формы (по умолчанию они "жирные")
-\renewcommand*{\baselinestretch}{1.5} % Межстрочный интервал 
-\maxtocdepth{subsection} % В оглавление попадают только разделы первыхтрех уровней: главы, секции и подсекции
+\renewcommand*{\baselinestretch}{1.3} % Межстрочный интервал 
+\maxtocdepth{subsection} % В оглавление попадают только разделы первых трех уровней: главы, секции и подсекции
 
 %%% Выравнивание и переносы %%%
 
@@ -144,7 +145,11 @@ isbn=false,                                         % Не показывать 
 ]{biblatex}[2016/09/17]
 \DeclareDelimFormat{bibinitdelim}{}                 % Убираем пробел между инициалами (Иванов И.И. вместо Иванов И. И.)
 \addbibresource{literature.bib}                     % Определяем файл с библиографией
-
+\AtEveryCitekey{%
+  \clearfield{url}%
+  \clearfield{urlyear}
+  \clearfield{doi}%
+}
 %%% Скрипт, который автоматически подбирает язык (и, следовательно, формат) для каждой библиографической записи %%%
 %%% Если в названии работы есть кириллица - меняем значение поля langid на russian %%%
 %%% Все оставшиеся пустые места в поле langid заменяем на english %%%
